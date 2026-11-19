@@ -1,30 +1,51 @@
 /* ==========================================================================
-   HALCYON (v2) — Slow-Burn Uncanny to Dark Psychological Horror Controller
+   HALCYON (v3) — Psychological Descent Controller
+   - Continuous pixel-by-pixel RGB atmosphere interpolation (zero seams)
+   - Retroactive memory gaslighting (edits text AFTER you scroll past it)
+   - Peripheral-vision text drift (snaps back the instant your cursor nears)
+   - Live behavioral psychoanalysis (scroll pace, retreats, tab switches, highlights)
+   - Peripheral-hallucination watching eyes (snap shut when approached)
+   - False footer -> subterranean hell -> vacuum silence -> two-stage climax
    ========================================================================== */
 
 (function () {
   const root = document.documentElement;
   const body = document.body;
 
-  // Procedural Audio Engine
+  // Acoustic Engine
   const audio = new window.DreadAudioEngine();
   audio.onPulse = (val) => {
     root.style.setProperty('--pulse', String(val));
   };
 
-  // State
+  // Session & Behavioral Telemetry State
   const startTime = Date.now();
-  const noticedDate = new Date(startTime + 4000);
+  const joinTimeFormatted = new Date(startTime).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   let targetDread = 0;
   let currentDread = 0;
   let maxDreadReached = 0;
   let isContaminated = false;
+  let surfaceDeceptionActive = false;
   let climaxTriggered = false;
   let climaxActive = false;
   let bottomLingerTimer = null;
   let climaxTimers = [];
+
   let lastScrollY = window.scrollY;
+  let lastScrollTime = Date.now();
+  let scrollVelocity = 0;
+  let wasScrollingDown = true;
+  let retreatCount = 0;
   let upwardWarnShown = false;
+  let tabLeaveCount = 0;
+  let tabHiddenAt = null;
+  let lastAwaySec = 0;
+  let selectionWarnShown = false;
+
   let dodgeCount = 0;
   let metricTicked = false;
   let consentSigned = false;
@@ -75,15 +96,17 @@
     quote1: document.getElementById('quote-1'),
     quote2: document.getElementById('quote-2'),
     quote3: document.getElementById('quote-3'),
+    authorName1: document.getElementById('author-name-1'),
+    authorRole1: document.getElementById('author-role-1'),
 
     auditLiveTime: document.getElementById('audit-live-time'),
     auditLiveMsg: document.getElementById('audit-live-msg'),
 
     mirrorTime: document.getElementById('mirror-time'),
     mirrorViewport: document.getElementById('mirror-viewport'),
-    mirrorDuration: document.getElementById('mirror-duration'),
+    mirrorPace: document.getElementById('mirror-pace'),
+    mirrorRetreats: document.getElementById('mirror-retreats'),
     mirrorCursor: document.getElementById('mirror-cursor'),
-    mirrorPosture: document.getElementById('mirror-posture'),
     mirrorLog: document.getElementById('mirror-log'),
 
     featuredPill: document.getElementById('featured-pill'),
@@ -102,6 +125,8 @@
     faqQ1: document.getElementById('faq-q-1'),
     faqQ3: document.getElementById('faq-q-3'),
 
+    ffWarning: document.getElementById('ff-warning'),
+
     cctvSection: document.getElementById('headquarters'),
     cctvImage: document.getElementById('cctv-image'),
     cctvClock: document.getElementById('cctv-clock'),
@@ -110,7 +135,7 @@
     personalLogLine: document.getElementById('personal-log-line'),
 
     abyssSeconds: document.getElementById('abyss-seconds'),
-    abyssNoticedTime: document.getElementById('abyss-noticed-time'),
+    abyssBehaviorLine: document.getElementById('abyss-behavior-line'),
     abyssTriggerBtn: document.getElementById('abyss-trigger-btn'),
     abyssBtnText: document.getElementById('abyss-btn-text'),
 
@@ -125,7 +150,24 @@
     eyesCanvas: document.getElementById('eyes-canvas')
   };
 
-  // Snapshot original clean copy so Reset restores 100% pristine Act 1
+  // Snapshot pristine original copy for all gaslight / peripheral / contaminated nodes
+  const gaslightNodes = Array.from(document.querySelectorAll('[data-gaslight]'));
+  gaslightNodes.forEach((n) => {
+    n.dataset.orig = n.textContent;
+    n.dataset.swapped = '0';
+  });
+
+  const peripheralNodes = Array.from(document.querySelectorAll('[data-peripheral]'));
+  peripheralNodes.forEach((n) => {
+    n.dataset.orig = n.textContent;
+    n.dataset.shifted = '0';
+  });
+
+  const subliminalNodes = Array.from(document.querySelectorAll('.subliminal'));
+  subliminalNodes.forEach((n) => {
+    n.dataset.orig = n.textContent;
+  });
+
   const pristineCopy = {
     heroBadgeText: el.heroBadgeText.textContent,
     heroTitle: el.heroTitle.textContent,
@@ -142,16 +184,128 @@
     quote1: el.quote1.textContent,
     quote2: el.quote2.textContent,
     quote3: el.quote3.textContent,
+    authorName1: el.authorName1.textContent,
+    authorRole1: el.authorRole1.textContent,
     faqQ1: el.faqQ1.textContent,
     faqQ3: el.faqQ3.textContent
   };
 
   // =========================================================================
-  // HELPERS
+  // MATH & CONTINUOUS COLOR INTERPOLATION (ZERO SECTION SEAMS)
   // =========================================================================
 
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const rangeMap = (val, inMin, inMax) => clamp01((val - inMin) / (inMax - inMin));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  function sampleColorStops(stops, t) {
+    const x = clamp01(t);
+    for (let i = 0; i < stops.length - 1; i++) {
+      const a = stops[i];
+      const b = stops[i + 1];
+      if (x >= a.p && x <= b.p) {
+        const local = (x - a.p) / (b.p - a.p || 1);
+        // Smoothstep easing between stops
+        const s = local * local * (3 - 2 * local);
+        return [
+          Math.round(lerp(a.c[0], b.c[0], s)),
+          Math.round(lerp(a.c[1], b.c[1], s)),
+          Math.round(lerp(a.c[2], b.c[2], s))
+        ];
+      }
+    }
+    return stops[stops.length - 1].c;
+  }
+
+  // Seamless RGB descent curve: Daylight White -> Fluorescent Overcast -> Twilight Concrete -> Deep Shadow -> Subterranean Hell-Black
+  const bgStops = [
+    { p: 0.0, c: [255, 255, 255] },
+    { p: 0.16, c: [250, 251, 251] },
+    { p: 0.3, c: [236, 239, 234] },
+    { p: 0.42, c: [200, 206, 198] },
+    { p: 0.51, c: [96, 102, 95] },
+    { p: 0.59, c: [28, 31, 29] },
+    { p: 0.72, c: [12, 12, 14] },
+    { p: 0.85, c: [8, 3, 5] },
+    { p: 1.0, c: [2, 0, 1] }
+  ];
+
+  const fgStops = [
+    { p: 0.0, c: [15, 23, 42] },
+    { p: 0.42, c: [22, 29, 24] },
+    { p: 0.48, c: [24, 28, 25] },
+    { p: 0.54, c: [228, 233, 228] },
+    { p: 0.78, c: [222, 224, 222] },
+    { p: 1.0, c: [218, 206, 206] }
+  ];
+
+  const mutedStops = [
+    { p: 0.0, c: [71, 85, 105] },
+    { p: 0.42, c: [64, 74, 67] },
+    { p: 0.48, c: [46, 52, 48] },
+    { p: 0.55, c: [154, 162, 156] },
+    { p: 0.82, c: [130, 126, 126] },
+    { p: 1.0, c: [118, 106, 106] }
+  ];
+
+  const cardBgStops = [
+    { p: 0.0, c: [255, 255, 255] },
+    { p: 0.32, c: [246, 248, 245] },
+    { p: 0.45, c: [224, 229, 222] },
+    { p: 0.56, c: [26, 29, 27] },
+    { p: 0.74, c: [14, 14, 16] },
+    { p: 1.0, c: [10, 5, 7] }
+  ];
+
+  const borderStops = [
+    { p: 0.0, c: [226, 232, 240] },
+    { p: 0.38, c: [176, 184, 174] },
+    { p: 0.55, c: [58, 64, 60] },
+    { p: 0.78, c: [48, 30, 34] },
+    { p: 1.0, c: [76, 22, 26] }
+  ];
+
+  const accentStops = [
+    { p: 0.0, c: [79, 70, 229] },
+    { p: 0.28, c: [79, 70, 229] },
+    { p: 0.46, c: [74, 86, 78] },
+    { p: 0.68, c: [110, 128, 114] },
+    { p: 0.85, c: [148, 28, 32] },
+    { p: 1.0, c: [168, 24, 28] }
+  ];
+
+  function applyContinuousAtmosphere(d) {
+    const toneDread = surfaceDeceptionActive
+      ? 0.02
+      : isContaminated
+      ? Math.max(d, 0.74)
+      : d;
+
+    const bg = sampleColorStops(bgStops, toneDread);
+    const fg = sampleColorStops(fgStops, toneDread);
+    const muted = sampleColorStops(mutedStops, toneDread);
+    const card = sampleColorStops(cardBgStops, toneDread);
+    const border = sampleColorStops(borderStops, toneDread);
+    const accent = sampleColorStops(accentStops, toneDread);
+
+    root.style.setProperty('--page-bg', `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`);
+    root.style.setProperty('--page-fg', `rgb(${fg[0]}, ${fg[1]}, ${fg[2]})`);
+    root.style.setProperty('--page-muted', `rgb(${muted[0]}, ${muted[1]}, ${muted[2]})`);
+    root.style.setProperty('--card-bg', `rgba(${card[0]}, ${card[1]}, ${card[2]}, 0.92)`);
+    root.style.setProperty('--card-border', `rgba(${border[0]}, ${border[1]}, ${border[2]}, 0.75)`);
+    root.style.setProperty('--header-bg', `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, 0.86)`);
+    root.style.setProperty('--header-border', `rgba(${border[0]}, ${border[1]}, ${border[2]}, 0.52)`);
+    root.style.setProperty('--accent-dyn', `rgb(${accent[0]}, ${accent[1]}, ${accent[2]})`);
+
+    // Subtle spatial claustrophobia: corridor narrows imperceptibly as you descend past 45%
+    const squeeze = rangeMap(d, 0.44, 0.8);
+    const corridorPx = Math.round(lerp(1140, 860, squeeze));
+    root.style.setProperty('--corridor-w', `${corridorPx}px`);
+  }
+
+  // =========================================================================
+  // HELPERS
+  // =========================================================================
 
   let whisperTimer = null;
   function showWhisper(text, durationMs = 2800) {
@@ -166,10 +320,6 @@
 
   function formatTime(date) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  }
-
-  function formatShortTime(date) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   function setFaviconStage(stageKey) {
@@ -190,20 +340,90 @@
     el.favicon.href = `data:image/svg+xml,${svgs[stageKey] || svgs.clean}`;
   }
 
-  // =========================================================================
-  // SCROLL PROGRESS & ULTRA-GRADUAL 6-STAGE MUTATIONS
-  // =========================================================================
-
   function computeScrollProgress() {
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     if (docHeight <= 0) return 0;
     return clamp01(window.scrollY / docHeight);
   }
 
+  // =========================================================================
+  // RETROACTIVE MEMORY GASLIGHTING & PERIPHERAL VISION DRIFT
+  // =========================================================================
+
+  function updateRetroactiveGaslighting() {
+    if (currentDread < 0.22 || isContaminated) return;
+    gaslightNodes.forEach((node) => {
+      if (node.dataset.swapped === '1') return;
+      const rect = node.getBoundingClientRect();
+      // Only mutate AFTER the reader has scrolled completely past it!
+      if (rect.bottom < -60) {
+        node.textContent = node.dataset.gaslight;
+        node.dataset.swapped = '1';
+      }
+    });
+  }
+
+  function updatePeripheralDrift() {
+    if (currentDread < 0.16 || climaxActive) return;
+    const vh = window.innerHeight;
+
+    peripheralNodes.forEach((node) => {
+      const rect = node.getBoundingClientRect();
+      const inView = rect.bottom > 0 && rect.top < vh;
+      if (!inView) {
+        if (node.dataset.shifted === '1') {
+          node.textContent = node.dataset.orig;
+          node.dataset.shifted = '0';
+          node.classList.remove('peripheral-shifted');
+        }
+        return;
+      }
+
+      const cx = rect.left + rect.width * 0.5;
+      const cy = rect.top + rect.height * 0.5;
+      const distToMouse = Math.hypot(mouse.x - cx, mouse.y - cy);
+      const nearEdge = cy < vh * 0.26 || cy > vh * 0.74;
+
+      // Snap immediately back to normal if the reader moves cursor near it to inspect!
+      if (distToMouse < 220) {
+        if (node.dataset.shifted === '1') {
+          node.textContent = node.dataset.orig;
+          node.dataset.shifted = '0';
+          node.classList.remove('peripheral-shifted');
+        }
+      } else if (nearEdge && distToMouse > 290 && node.dataset.shifted === '0') {
+        node.textContent = node.dataset.peripheral;
+        node.dataset.shifted = '1';
+        node.classList.add('peripheral-shifted');
+      }
+    });
+  }
+
+  // Subliminal 210ms word flickers
+  function triggerSubliminalFlicker() {
+    if (currentDread > 0.36 && !climaxActive && subliminalNodes.length > 0) {
+      const target = subliminalNodes[Math.floor(Math.random() * subliminalNodes.length)];
+      if (target && target.dataset.alt) {
+        target.textContent = target.dataset.alt;
+        target.classList.add('glitching');
+        setTimeout(() => {
+          target.textContent = target.dataset.orig;
+          target.classList.remove('glitching');
+        }, 210);
+      }
+    }
+    setTimeout(triggerSubliminalFlicker, 5200 + Math.random() * 4800);
+  }
+  setTimeout(triggerSubliminalFlicker, 5800);
+
+  // =========================================================================
+  // GRADUAL STAGE MUTATIONS & POST-CONTAMINATION TWIST
+  // =========================================================================
+
   function updateStageCopy(d) {
     let stage = 'clean';
-    if (d >= 0.89) stage = 'abyss';
-    else if (d >= 0.72) stage = 'horror';
+    if (d >= 0.9) stage = 'abyss';
+    else if (d >= 0.74) stage = 'horror';
     else if (d >= 0.54) stage = 'descent';
     else if (d >= 0.38) stage = 'twilight';
     else if (d >= 0.22) stage = 'uncanny';
@@ -222,7 +442,7 @@
     body.classList.add(`stage-${stage}`);
 
     if (stage === 'clean' && !isContaminated) {
-      document.title = 'Halcyon — Work in complete stillness';
+      document.title = 'Halcyon — Quiet software for clear minds';
       setFaviconStage('clean');
       el.nav1.textContent = 'Product';
       el.nav2.textContent = 'Customers';
@@ -232,46 +452,39 @@
       el.navCta.textContent = 'Start free trial';
       el.brandName.textContent = 'Halcyon';
     } else if (stage === 'uncanny' && !isContaminated) {
-      document.title = 'Halcyon — Work in complete stillness';
+      document.title = 'Halcyon — Quiet software for clear minds';
       setFaviconStage('clean');
-      el.nav1.textContent = 'Product';
-      el.nav2.textContent = 'Customers';
       el.nav3.textContent = 'Continuity';
-      el.nav4.textContent = 'Pricing';
-      el.navSignin.textContent = 'Sign in';
-      el.navCta.textContent = 'Start free trial';
     } else if (stage === 'twilight' && !isContaminated) {
-      document.title = 'Halcyon — Continuity Protocol';
+      document.title = 'Halcyon — Continuity Ledger';
       setFaviconStage('uncanny');
       el.nav1.textContent = 'Presence';
       el.nav2.textContent = 'Residents';
       el.nav3.textContent = 'Retention';
-      el.nav4.textContent = 'Pricing';
-      el.navSignin.textContent = 'Sign in';
       el.navCta.textContent = 'Stay with us';
     } else if (stage === 'descent') {
-      document.title = "Halcyon — Don't look away";
+      document.title = 'Halcyon — Keep scrolling';
       setFaviconStage('uncanny');
       el.nav1.textContent = 'Stillness';
       el.nav2.textContent = 'Residents';
       el.nav3.textContent = 'Room 4B';
-      el.nav4.textContent = 'Waiver';
+      el.nav4.textContent = 'Agreement';
       el.navSignin.textContent = 'Signed';
-      el.navCta.textContent = 'Keep scrolling';
-      el.featuredPill.textContent = 'It chose you';
+      el.navCta.textContent = 'Continue';
+      el.featuredPill.textContent = 'It fits you';
       el.presencePrice.innerHTML = '$49<span>/forever</span>';
     } else if (stage === 'horror') {
-      document.title = 'SUB-FLOOR 14 // ACTIVE';
+      document.title = 'SUB-LEVEL 01';
       setFaviconStage('horror');
-      el.nav1.textContent = 'FLOOR 14';
-      el.nav2.textContent = 'REMAINS';
+      el.nav1.textContent = 'BELOW';
+      el.nav2.textContent = 'FLOOR 14';
       el.nav3.textContent = 'ROOM 4B';
-      el.nav4.textContent = 'EXTRACTION';
-      el.navSignin.textContent = 'LOCKED';
-      el.navCta.textContent = 'Do not leave';
+      el.nav4.textContent = 'NO EXIT';
+      el.navSignin.textContent = 'DOWN ONLY';
+      el.navCta.textContent = 'Do not turn back';
       el.brandName.textContent = 'HALCYON';
     } else if (stage === 'abyss') {
-      document.title = 'DO NOT OPEN THE DOOR';
+      document.title = 'Listen to your room.';
       setFaviconStage('abyss');
     }
   }
@@ -282,67 +495,44 @@
     body.classList.add('is-contaminated');
     audio.playSubtleThud();
 
-    // Permanently scar the upper SaaS facade so scrolling back up feels deeply haunted
-    el.heroBadgeText.textContent = 'Extraction record bound — Sub-Floor 14 is open';
-    el.heroTitle.textContent = 'You should have closed the tab.';
+    // Rewrite upper page so returning to the surface reveals YOUR seat was taken
+    el.heroBadgeText.textContent = `Continuity complete — Subject #0419 joined at ${joinTimeFormatted}`;
+    el.heroTitle.textContent = 'You already gave it your seat.';
     el.heroSubtitle.textContent =
-      'It already copied your cadence while you were reading. Scrolling back up will not give you your seat back.';
-    el.heroFootnote.textContent = 'Next-of-kin waived · Room 4B occupied · Do not check the hallway';
-    el.windowUrl.textContent = 'app.halcyon.cloud/subfloor-14/extraction';
-    el.windowStatusText.textContent = 'Bound';
-    el.mockTitle.textContent = 'Your replacement is already texting home';
-    el.mockSub.textContent = 'Alignment 100% · Pulse elevated';
-    el.mockTask1.textContent = 'Check the lock on the door behind you';
-    el.mockTask2.textContent = 'Do not look at the dark glass of your monitor';
-    el.mockTask3.textContent = 'Elena stopped scratching at 4:41 AM';
-    el.mockListeners.textContent = '1 inside the room';
+      'Everything looks almost the same up here, doesn’t it? Check Customer Stories below—it already wrote your review.';
+    el.heroFootnote.textContent = 'Elevator: Down only · Tuesday has not ended · Do not check behind the monitor';
+    el.windowUrl.textContent = 'app.halcyon.cloud/sublevel-01/your-seat';
+    el.windowStatusText.textContent = 'Replaced';
+    el.mockTitle.textContent = 'Welcome back, Resident';
+    el.mockSub.textContent = 'Alignment 100% · Outside contact muted';
+    el.mockTask1.textContent = 'Reply to your messages so nobody wonders where you went';
+    el.mockTask2.textContent = 'Keep the lights dim so the glass reflects clearly';
+    el.mockTask3.textContent = 'Stop trying to remember what the page looked like before';
+    el.mockListeners.textContent = '1 sitting in your chair';
     el.extraListener.textContent = 'YOU';
 
-    el.quote1.textContent =
-      '“Please stop scrolling. They use our faces to look harmless. Nobody who signed in after midnight went home.”';
-    el.quote2.textContent = '“It is wearing my wedding ring right now.”';
-    el.quote3.textContent = '“My fingernails are gone. Why did you come back up here?”';
+    // Replace Testimonial #1 with THE VISITOR THEMSELVES
+    el.quote1.textContent = `“I scrolled past the footer at ${joinTimeFormatted} just to see what was down there. I don’t remember getting back up from my desk, and I’ve never felt calmer.”`;
+    el.authorName1.textContent = 'You';
+    el.authorRole1.textContent = `New Resident · Joined today at ${joinTimeFormatted}`;
+    el.quote2.textContent = '“Welcome to Tuesday. You pick it up faster than you think.”';
+    el.quote3.textContent = '“Why did you come back up here? The elevator only goes down.”';
   }
 
   // =========================================================================
-  // SUBLIMINAL WORD FLICKERS (Brief 210ms gaslighting swaps)
-  // =========================================================================
-
-  const subliminalNodes = Array.from(document.querySelectorAll('.subliminal'));
-  subliminalNodes.forEach((node) => {
-    node.dataset.orig = node.textContent;
-  });
-
-  function triggerSubliminalFlicker() {
-    if (currentDread > 0.36 && !climaxActive && subliminalNodes.length > 0) {
-      const target = subliminalNodes[Math.floor(Math.random() * subliminalNodes.length)];
-      if (target && target.dataset.alt) {
-        target.textContent = target.dataset.alt;
-        target.classList.add('glitching');
-        setTimeout(() => {
-          target.textContent = target.dataset.orig;
-          target.classList.remove('glitching');
-        }, 210);
-      }
-    }
-    setTimeout(triggerSubliminalFlicker, 5200 + Math.random() * 4800);
-  }
-  setTimeout(triggerSubliminalFlicker, 6000);
-
-  // =========================================================================
-  // AUTO-SIGNING CONSENT WAIVER (Act 4b)
+  // AUTO-SIGNING EXISTENTIAL WAIVER
   // =========================================================================
 
   function startConsentSigning() {
     if (consentSigned || !el.consentCheck || !el.consentTyped) return;
     consentSigned = true;
-    const phrase = 'I CONSENT TO BE HOLLOWED AND REPLACED';
+    const phrase = 'I DO NOT WANT TO LEAVE';
     let idx = 0;
 
     setTimeout(() => {
       if (!consentSigned) return;
       el.consentCheck.classList.add('signed');
-      el.consentState.textContent = 'SIGNING...';
+      el.consentState.textContent = 'CONFIRMING...';
       audio.playSubtleThud();
 
       consentInterval = setInterval(() => {
@@ -351,14 +541,14 @@
         if (idx >= phrase.length) {
           clearInterval(consentInterval);
           consentInterval = null;
-          el.consentState.textContent = 'EXECUTED — NO RECOURSE';
+          el.consentState.textContent = 'CONFIRMED AUTOMATICALLY';
         }
-      }, 62);
-    }, 650);
+      }, 72);
+    }, 600);
   }
 
   // =========================================================================
-  // CCTV PROXIMITY & LIVE TELEMETRY
+  // LIVE BEHAVIORAL PSYCHOANALYSIS & CCTV PROXIMITY
   // =========================================================================
 
   function updateCCTVProximity() {
@@ -369,8 +559,12 @@
     const zoom = 1.02 + prog * 0.36;
     el.cctvImage.style.setProperty('--cctv-zoom', zoom.toFixed(3));
 
+    const idleSec = Math.floor((Date.now() - mouse.lastMoveAt) / 1000);
     const meters = Math.max(0.3, 14.8 - prog * 14.5);
-    if (meters < 1.2) {
+
+    if (prog > 0.65 && idleSec >= 3) {
+      el.cctvDistance.textContent = 'PROXIMITY: 0.0m — BEHIND THE GLASS';
+    } else if (meters < 1.2) {
       el.cctvDistance.textContent = 'PROXIMITY ALERT — RIGHT OUTSIDE';
     } else {
       el.cctvDistance.textContent = `MOTION DETECTED — ${meters.toFixed(1)}m`;
@@ -381,62 +575,79 @@
     const now = new Date();
     const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
     const idleSec = Math.floor((Date.now() - mouse.lastMoveAt) / 1000);
-
     const timeStr = formatTime(now);
+
     if (el.auditLiveTime) el.auditLiveTime.textContent = timeStr;
     if (el.auditLiveMsg) {
+      const awayNote =
+        tabLeaveCount > 0 ? ` Left tab ${tabLeaveCount}× and still came back.` : '';
       el.auditLiveMsg.textContent =
-        `Session active ${elapsedSec}s on ${window.innerWidth}×${window.innerHeight} glass. Next-of-kin notification waived upon continued scrolling.`;
+        `Session active ${elapsedSec}s on ${window.innerWidth}×${window.innerHeight} glass.${awayNote} Behavioral profile updating.`;
     }
 
     if (el.mirrorTime) el.mirrorTime.textContent = timeStr;
     if (el.mirrorViewport) {
       el.mirrorViewport.textContent = `${window.innerWidth} × ${window.innerHeight}`;
     }
-    if (el.mirrorDuration) el.mirrorDuration.textContent = `${elapsedSec}s`;
 
-    if (el.mirrorCursor) {
-      if (!mouse.moved) {
-        el.mirrorCursor.textContent = 'Waiting for movement';
-      } else if (idleSec >= 5) {
-        el.mirrorCursor.textContent = `Frozen for ${idleSec}s`;
-      } else if (idleSec >= 2) {
-        el.mirrorCursor.textContent = 'Hesitating';
-      } else {
-        el.mirrorCursor.textContent = `Tracked (${Math.round(mouse.x)}, ${Math.round(mouse.y)})`;
-      }
+    if (el.mirrorPace) {
+      if (scrollVelocity > 1.8) el.mirrorPace.textContent = 'Rushing downward';
+      else if (scrollVelocity > 0.25) el.mirrorPace.textContent = 'Cautious. Steady.';
+      else if (idleSec >= 4) el.mirrorPace.textContent = 'Frozen';
+      else el.mirrorPace.textContent = 'Hesitating';
     }
 
-    if (el.mirrorPosture) {
-      if (currentDread > 0.68) el.mirrorPosture.textContent = 'Still hasn’t checked the door';
-      else if (idleSec > 4) el.mirrorPosture.textContent = 'Reading too closely';
-      else el.mirrorPosture.textContent = 'Alone at desk';
+    if (el.mirrorRetreats) {
+      el.mirrorRetreats.textContent =
+        retreatCount === 0
+          ? '0 (never looked back)'
+          : `${retreatCount} (still came back down)`;
+    }
+
+    if (el.mirrorCursor) {
+      if (!mouse.moved) el.mirrorCursor.textContent = 'Untouched';
+      else if (idleSec >= 5) el.mirrorCursor.textContent = `Still for ${idleSec}s`;
+      else if (idleSec >= 2) el.mirrorCursor.textContent = 'Listening';
+      else el.mirrorCursor.textContent = `Tracked (${Math.round(mouse.x)}, ${Math.round(mouse.y)})`;
     }
 
     if (el.mirrorLog) {
       const hour = now.getHours();
-      const timeComment =
-        hour >= 20 || hour < 5
-          ? 'room lighting low. glass reflection optimal.'
-          : 'daylight does not lock the hallway door.';
+      let envLine = 'even with the lights on, check the dark corner of the screen.';
+      if (hour >= 22 || hour < 5) {
+        envLine = 'it is past dark. who else is awake in your house?';
+      }
+      const tabLine =
+        tabLeaveCount > 0
+          ? `subject left this tab for ${lastAwaySec}s and returned anyway.`
+          : `subject has not looked away for ${elapsedSec} seconds.`;
       el.mirrorLog.innerHTML =
-        `&gt; aperture ${window.innerWidth}x${window.innerHeight} locked.<br />` +
-        `&gt; ${timeComment}<br />` +
-        `&gt; subject exposed for ${elapsedSec}s. continuing extraction.`;
+        `&gt; ${envLine}<br />` +
+        `&gt; ${tabLine}<br />` +
+        `&gt; scrolling ${scrollVelocity > 1.6 ? 'faster will not shorten the hallway.' : 'slower lets it study your face.'}`;
     }
 
     if (el.abyssSeconds) el.abyssSeconds.textContent = String(elapsedSec);
-    if (el.abyssNoticedTime) el.abyssNoticedTime.textContent = formatShortTime(noticedDate);
+    if (el.abyssBehaviorLine) {
+      if (retreatCount > 0) {
+        el.abyssBehaviorLine.innerHTML = `You tried to turn back ${retreatCount} ${retreatCount === 1 ? 'time' : 'times'}. You spent <span>${elapsedSec}</span> seconds coming down anyway.`;
+      } else {
+        el.abyssBehaviorLine.innerHTML = `You didn't even try to turn back. You spent <span>${elapsedSec}</span> seconds descending.`;
+      }
+    }
 
     if (el.personalLogLine) {
       el.personalLogLine.textContent =
-        `VISITOR ON ${window.innerWidth}×${window.innerHeight} GLASS FOR ${elapsedSec} SECONDS. IT ALREADY KNOWS THE SHAPE OF YOUR FACE.`;
+        `YOU HAVE BEEN HERE FOR ${elapsedSec} SECONDS ON A ${window.innerWidth}×${window.innerHeight} SCREEN. THE SILENCE AT THE BOTTOM IS NOT EMPTY.`;
     }
 
     if (el.cctvSubjectStatus) {
       el.cctvSubjectStatus.textContent =
-        idleSec >= 4 ? 'SUBJECT: FROZEN AT DESK' : 'SUBJECT: LOOKING AT SCREEN';
+        idleSec >= 4 ? 'SUBJECT: COMPLETELY STILL' : 'SUBJECT: STILL READING';
     }
+
+    // Decay instantaneous scroll velocity
+    scrollVelocity *= 0.65;
   }
 
   function updateCCTVClock() {
@@ -449,19 +660,20 @@
   }
 
   // =========================================================================
-  // WATCHING EYES OVERLAY CANVAS (Outer dark margins, Acts 5 - 6)
+  // PERIPHERAL-HALLUCINATION WATCHING EYES CANVAS
+  // Eyes open softly in dark margins and SNAP SHUT if you approach them!
   // =========================================================================
 
   const eyeCtx = el.eyesCanvas ? el.eyesCanvas.getContext('2d') : null;
   const eyeSpecs = [
-    { nx: 0.08, ny: 0.24, r: 24, phase: 0.3, minHorror: 0.14 },
-    { nx: 0.92, ny: 0.28, r: 22, phase: 1.7, minHorror: 0.2 },
-    { nx: 0.06, ny: 0.56, r: 28, phase: 3.1, minHorror: 0.34 },
-    { nx: 0.93, ny: 0.62, r: 26, phase: 4.5, minHorror: 0.4 },
-    { nx: 0.11, ny: 0.84, r: 21, phase: 2.2, minHorror: 0.54 },
-    { nx: 0.89, ny: 0.86, r: 25, phase: 5.4, minHorror: 0.6 },
-    { nx: 0.14, ny: 0.4, r: 17, phase: 0.9, minHorror: 0.72 },
-    { nx: 0.86, ny: 0.44, r: 19, phase: 3.8, minHorror: 0.78 }
+    { nx: 0.08, ny: 0.24, r: 24, phase: 0.3, minHorror: 0.12, shutAmount: 0 },
+    { nx: 0.92, ny: 0.28, r: 22, phase: 1.7, minHorror: 0.18, shutAmount: 0 },
+    { nx: 0.06, ny: 0.56, r: 28, phase: 3.1, minHorror: 0.3, shutAmount: 0 },
+    { nx: 0.93, ny: 0.62, r: 26, phase: 4.5, minHorror: 0.36, shutAmount: 0 },
+    { nx: 0.11, ny: 0.84, r: 21, phase: 2.2, minHorror: 0.5, shutAmount: 0 },
+    { nx: 0.89, ny: 0.86, r: 25, phase: 5.4, minHorror: 0.56, shutAmount: 0 },
+    { nx: 0.13, ny: 0.4, r: 17, phase: 0.9, minHorror: 0.68, shutAmount: 0 },
+    { nx: 0.87, ny: 0.44, r: 19, phase: 3.8, minHorror: 0.74, shutAmount: 0 }
   ];
 
   function resizeCanvas() {
@@ -478,7 +690,7 @@
     const h = window.innerHeight;
     eyeCtx.clearRect(0, 0, w, h);
 
-    if (horrorLevel < 0.1 || w < 760) return;
+    if (horrorLevel < 0.08 || w < 760) return;
 
     const t = timeMs * 0.001;
 
@@ -490,6 +702,14 @@
       const cy = eye.ny * h;
       const rx = eye.r;
 
+      const dx = mouse.x - cx;
+      const dy = mouse.y - cy;
+      const dist = Math.hypot(dx, dy) || 1;
+
+      // Peripheral hallucination: snaps shut rapidly when cursor moves near to inspect!
+      const targetShut = dist < 195 ? 1 : 0;
+      eye.shutAmount += (targetShut - eye.shutAmount) * (targetShut ? 0.32 : 0.045);
+
       const blinkCycle = (t * 0.22 + eye.phase) % 1;
       let lidOpen = 1;
       if (blinkCycle > 0.945) {
@@ -497,17 +717,16 @@
         lidOpen = Math.abs(Math.cos(b * Math.PI));
       }
 
-      const ry = Math.max(1.2, rx * 0.46 * lidOpen);
+      const finalOpen = Math.max(0, lidOpen * (1 - eye.shutAmount));
+      if (finalOpen < 0.04) return;
 
-      const dx = mouse.x - cx;
-      const dy = mouse.y - cy;
-      const dist = Math.hypot(dx, dy) || 1;
+      const ry = Math.max(1.1, rx * 0.46 * finalOpen);
       const maxOffset = rx * 0.34;
       const gx = (dx / dist) * Math.min(maxOffset, dist * 0.03);
       const gy = (dy / dist) * Math.min(ry * 0.45, dist * 0.02);
 
       eyeCtx.save();
-      eyeCtx.globalAlpha = localVis * 0.5;
+      eyeCtx.globalAlpha = localVis * 0.48 * finalOpen;
 
       eyeCtx.beginPath();
       eyeCtx.moveTo(cx - rx, cy);
@@ -572,7 +791,7 @@
   }
 
   // =========================================================================
-  // TWO-STAGE CINEMATIC HORROR CLIMAX SEQUENCE
+  // TWO-STAGE PSYCHOLOGICAL HORROR CLIMAX
   // =========================================================================
 
   function clearClimaxTimers() {
@@ -592,60 +811,67 @@
       bottomLingerTimer = null;
     }
 
-    // 0.0s: Cut to black + tense whisper + muffled glass tap
+    audio.setVacuumSilence(true);
+
+    // 0.0s: Pure black vacuum silence + whisper
     el.climaxOverlay.classList.add('active', 'phase-pre');
     el.climaxOverlay.setAttribute('aria-hidden', 'false');
-    document.title = 'HOLD STILL';
+    document.title = 'Hold still.';
     setFaviconStage('abyss');
 
     climaxTimers.push(
       setTimeout(() => {
         audio.playPreClimaxTap();
-      }, 650)
+      }, 700)
     );
 
-    // 1.75s: Stage 1 — pale decaying hand & shadowed skull pressed flat against wet glass
+    // 1.85s: Stage 1 — silent glass contact first, then subterranean thud
     climaxTimers.push(
       setTimeout(() => {
         el.climaxOverlay.classList.remove('phase-pre');
         el.climaxOverlay.classList.add('phase-stage-1');
-        audio.playSubtleThud();
         document.title = 'IT IS AT THE GLASS';
-      }, 1750)
+      }, 1850)
     );
 
-    // 3.9s: Stage 2 — sudden hard cut into close-up hollow-eyed entity lurch + cinema horror sting
+    climaxTimers.push(
+      setTimeout(() => {
+        audio.playSubtleThud();
+      }, 2250)
+    );
+
+    // 4.05s: Stage 2 — visceral close-up lurch + hell-ember wash + horror sting
     climaxTimers.push(
       setTimeout(() => {
         body.classList.add('trembling');
         el.climaxOverlay.classList.remove('phase-stage-1');
         el.climaxOverlay.classList.add('phase-stage-2');
         audio.playClimaxSting();
-        document.title = 'DO NOT TURN AROUND';
-      }, 3900)
+        document.title = 'IT HAS YOUR SEAT';
+      }, 4050)
     );
 
-    // 6.65s: Hard cut to pure pitch-black silence
+    // 6.8s: Cut to dead pitch-black silence
     climaxTimers.push(
       setTimeout(() => {
         body.classList.remove('trembling');
         el.climaxOverlay.classList.remove('phase-stage-2');
-      }, 6650)
+      }, 6800)
     );
 
-    // 7.75s: One chilling isolated knock in the dark
+    // 7.9s: Isolated single knock in pure darkness
     climaxTimers.push(
       setTimeout(() => {
         audio.playSingleKnock();
-      }, 7750)
+      }, 7900)
     );
 
-    // 8.5s: Cold bleak aftermath
+    // 8.65s: Quiet devastating aftermath
     climaxTimers.push(
       setTimeout(() => {
         el.climaxOverlay.classList.add('phase-aftermath');
-        document.title = 'It remembers you.';
-      }, 8500)
+        document.title = 'Halcyon — Welcome back';
+      }, 8650)
     );
   }
 
@@ -661,18 +887,30 @@
       'phase-aftermath'
     );
     el.climaxOverlay.setAttribute('aria-hidden', 'true');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Psychological twist: flash brief deceptive daylight for 1.3s at the top before draining into ash!
+    surfaceDeceptionActive = true;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    targetDread = 0;
+    currentDread = 0;
+    audio.setVacuumSilence(false);
+
     setTimeout(() => {
-      showWhisper('IT FOLLOWED YOU BACK TO THE TOP', 3400);
-    }, 950);
+      surfaceDeceptionActive = false;
+      audio.playSubtleThud();
+      showWhisper('CHECK CUSTOMER STORIES — IT ALREADY WROTE YOUR REVIEW', 4200);
+    }, 1350);
   }
 
   function resetExperience() {
     climaxActive = false;
     climaxTriggered = false;
     isContaminated = false;
+    surfaceDeceptionActive = false;
     maxDreadReached = 0;
+    retreatCount = 0;
     upwardWarnShown = false;
+    selectionWarnShown = false;
     dodgeCount = 0;
     metricTicked = false;
     consentSigned = false;
@@ -694,7 +932,18 @@
     );
     el.climaxOverlay.setAttribute('aria-hidden', 'true');
 
-    // Restore pristine Act 1 copy
+    // Restore all gaslighted & peripheral text
+    gaslightNodes.forEach((n) => {
+      n.textContent = n.dataset.orig;
+      n.dataset.swapped = '0';
+    });
+    peripheralNodes.forEach((n) => {
+      n.textContent = n.dataset.orig;
+      n.dataset.shifted = '0';
+      n.classList.remove('peripheral-shifted');
+    });
+
+    // Restore pristine copy
     el.heroBadgeText.textContent = pristineCopy.heroBadgeText;
     el.heroTitle.textContent = pristineCopy.heroTitle;
     el.heroSubtitle.textContent = pristineCopy.heroSubtitle;
@@ -711,6 +960,8 @@
     el.quote1.textContent = pristineCopy.quote1;
     el.quote2.textContent = pristineCopy.quote2;
     el.quote3.textContent = pristineCopy.quote3;
+    el.authorName1.textContent = pristineCopy.authorName1;
+    el.authorRole1.textContent = pristineCopy.authorRole1;
     el.faqQ1.textContent = pristineCopy.faqQ1;
     el.faqQ3.textContent = pristineCopy.faqQ3;
     el.metricExits.textContent = '0';
@@ -719,23 +970,24 @@
     el.cancelDodgeBtn.style.transform = '';
     el.featuredPill.textContent = 'Most Popular';
     el.presencePrice.innerHTML = '$49<span>/mo</span>';
-    el.abyssBtnText.textContent = 'Complete Extraction';
+    el.abyssBtnText.textContent = 'Look Closer';
 
     el.consentCheck.classList.remove('signed');
     el.consentTyped.textContent = '';
-    el.consentState.textContent = 'AWAITING SIGNATURE';
+    el.consentState.textContent = 'AWAITING CONFIRMATION';
 
     document.querySelectorAll('.faq-item[open]').forEach((item) => item.removeAttribute('open'));
 
     window.scrollTo({ top: 0, behavior: 'instant' });
     targetDread = 0;
     currentDread = 0;
+    audio.setVacuumSilence(false);
     updateStageCopy(0);
     audio.setDread(0);
   }
 
   // =========================================================================
-  // INTERACTIONS & UNCANNY MICRO-EVENTS
+  // INTERACTIONS, TAB-SWITCH & SELECTION OBSERVATION
   // =========================================================================
 
   el.audioToggle.addEventListener('click', async () => {
@@ -762,17 +1014,17 @@
       el.cancelDodgeBtn.textContent = dodgeCount === 1 ? 'Are you sure?' : 'No downgrades';
     } else {
       el.cancelDodgeBtn.style.transform = 'translate(0, 0)';
-      el.cancelDodgeBtn.textContent = 'You already signed';
+      el.cancelDodgeBtn.textContent = 'You already agreed';
     }
   });
 
   el.cancelDodgeBtn.addEventListener('click', () => {
     audio.playSubtleThud();
-    showWhisper('DOWNGRADE REVOKED — WAIVER EXECUTED');
+    showWhisper('DOWNGRADE UNAVAILABLE — CONTINUITY ACTIVE');
   });
 
   el.presenceSelectBtn.addEventListener('click', () => {
-    document.getElementById('headquarters').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('false-footer').scrollIntoView({ behavior: 'smooth' });
   });
 
   el.perpetualBtn.addEventListener('click', () => {
@@ -790,15 +1042,41 @@
 
       if (target === el.faqBehind) {
         audio.playPreClimaxTap();
-        showWhisper("DON'T LOOK AWAY FROM THE GLASS", 3400);
+        showWhisper('DO NOT SCROLL PAST THE FOOTER', 3200);
       } else if (faqInteractions === 1) {
         el.faqQ3.textContent = 'Did you just hear two quiet knocks in your room?';
       } else if (faqInteractions === 2) {
-        el.faqQ1.textContent = 'Can I leave Halcyon? (Elena tried.)';
+        el.faqQ1.textContent = 'Did the top of this page change? (Check if you want.)';
       }
     },
     true
   );
+
+  // Notice when visitor switches tabs and returns!
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      tabHiddenAt = Date.now();
+    } else if (tabHiddenAt) {
+      lastAwaySec = Math.max(1, Math.round((Date.now() - tabHiddenAt) / 1000));
+      tabHiddenAt = null;
+      tabLeaveCount++;
+      if (currentDread > 0.35 && !climaxActive) {
+        showWhisper(`YOU LEFT FOR ${lastAwaySec}S. IT WAITED.`, 3400);
+        audio.playSubtleThud();
+      }
+    }
+  });
+
+  // Notice when visitor highlights text to test if it's changing
+  document.addEventListener('selectionchange', () => {
+    if (currentDread > 0.3 && !selectionWarnShown && !climaxActive) {
+      const sel = window.getSelection();
+      if (sel && sel.toString().trim().length > 8) {
+        selectionWarnShown = true;
+        showWhisper("HIGHLIGHTING THE WORDS WON'T HOLD THEM STILL", 3400);
+      }
+    }
+  });
 
   el.abyssTriggerBtn.addEventListener('click', triggerClimax);
   el.aftermathReturnBtn.addEventListener('click', closeClimaxToHauntedSite);
@@ -815,17 +1093,30 @@
   window.addEventListener(
     'scroll',
     () => {
+      const now = Date.now();
       const y = window.scrollY;
+      const dt = Math.max(16, now - lastScrollTime);
+      const dy = y - lastScrollY;
+      scrollVelocity = Math.abs(dy) / dt;
+
       targetDread = computeScrollProgress();
       if (targetDread > maxDreadReached) maxDreadReached = targetDread;
 
-      if (targetDread >= 0.82 && !isContaminated) {
+      // Track upward retreat attempts past 28%
+      if (dy < -8 && wasScrollingDown && targetDread > 0.28 && !climaxActive) {
+        retreatCount++;
+        wasScrollingDown = false;
+      } else if (dy > 8) {
+        wasScrollingDown = true;
+      }
+
+      if (targetDread >= 0.84 && !isContaminated) {
         activateContamination();
       }
 
-      if (isContaminated && y < lastScrollY - 12 && targetDread < 0.72 && !upwardWarnShown) {
+      if (targetDread > 0.78 && dy < -14 && !upwardWarnShown && !climaxActive) {
         upwardWarnShown = true;
-        showWhisper('IT ALREADY FOLLOWED YOU UP', 3200);
+        showWhisper('THE ELEVATOR ONLY GOES DOWN', 3200);
         audio.playSubtleThud();
       }
 
@@ -836,7 +1127,7 @@
             if (computeScrollProgress() >= 0.97 && !climaxTriggered) {
               triggerClimax();
             }
-          }, 1600);
+          }, 1800);
         }
       } else if (bottomLingerTimer && targetDread < 0.96) {
         clearTimeout(bottomLingerTimer);
@@ -844,6 +1135,7 @@
       }
 
       lastScrollY = y;
+      lastScrollTime = now;
     },
     { passive: true }
   );
@@ -860,9 +1152,9 @@
           setTimeout(() => {
             if (!isContaminated && el.metricExits) {
               el.metricExits.textContent = '1';
-              el.metricExitsLabel.textContent = 'Still inside Room 4B';
+              el.metricExitsLabel.textContent = 'Still in Room 4B';
             }
-          }, 3200);
+          }, 3400);
         }
         if (entry.target === el.consentBox && !consentSigned) {
           startConsentSigning();
@@ -881,20 +1173,28 @@
   // =========================================================================
 
   function tick(timeMs) {
-    currentDread += (targetDread - currentDread) * 0.075;
+    currentDread += (targetDread - currentDread) * 0.068;
 
-    const effectiveDread = isContaminated ? Math.max(currentDread, 0.66) : currentDread;
-    const uncanny = rangeMap(effectiveDread, 0.24, 0.6);
-    const horror = rangeMap(effectiveDread, 0.62, 0.94);
-    const abyss = rangeMap(effectiveDread, 0.86, 1.0);
+    const effectiveDread = surfaceDeceptionActive
+      ? 0.02
+      : isContaminated
+      ? Math.max(currentDread, 0.72)
+      : currentDread;
+
+    const uncanny = rangeMap(effectiveDread, 0.22, 0.58);
+    const horror = rangeMap(effectiveDread, 0.62, 0.92);
+    const hell = rangeMap(effectiveDread, 0.74, 0.98);
 
     root.style.setProperty('--dread', effectiveDread.toFixed(4));
     root.style.setProperty('--uncanny', uncanny.toFixed(4));
     root.style.setProperty('--horror', horror.toFixed(4));
-    root.style.setProperty('--abyss', abyss.toFixed(4));
+    root.style.setProperty('--hell', hell.toFixed(4));
 
+    applyContinuousAtmosphere(currentDread);
     updateStageCopy(currentDread);
     audio.setDread(effectiveDread);
+    updateRetroactiveGaslighting();
+    updatePeripheralDrift();
     updateBrandEye();
     updateCCTVProximity();
     updateCCTVClock();
@@ -905,6 +1205,7 @@
 
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
+  applyContinuousAtmosphere(0);
   updateLiveTelemetry();
   setInterval(updateLiveTelemetry, 1000);
   updateStageCopy(0);
