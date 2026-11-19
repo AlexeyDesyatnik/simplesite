@@ -11,14 +11,14 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Atmospheric Overlays (invisible at scroll 0%, intensify progressively) -->
+  <!-- Atmospheric Overlays (completely invisible at top, intensify imperceptibly) -->
   <canvas id="eyes-canvas" aria-hidden="true"></canvas>
   <div class="overlay-vignette" aria-hidden="true"></div>
   <div class="overlay-grain" aria-hidden="true"></div>
   <div class="overlay-scanlines" aria-hidden="true"></div>
   <div class="overlay-heartbeat" aria-hidden="true"></div>
 
-  <!-- Brief Flash / Whisper Notification -->
+  <!-- Brief Whisper Notification -->
   <div id="whisper-toast" class="whisper-toast" aria-live="polite"></div>
 
   <!-- Sticky Navigation -->
@@ -29,7 +29,7 @@
           <svg viewBox="0 0 32 32" width="28" height="28">
             <rect class="brand-bg" width="32" height="32" rx="8" />
             <path class="brand-lid" d="M6 16 Q16 7 26 16 Q16 25 6 16 Z" fill="none" stroke="currentColor" stroke-width="2" />
-            <circle class="brand-ring" cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="2.2" />
+            <circle class="brand-ring" cx="16" cy="16" r="7.5" fill='none' stroke="currentColor" stroke-width="2.2" />
             <circle class="brand-pupil" id="brand-pupil" cx="16" cy="16" r="3" fill="currentColor" />
           </svg>
         </span>
@@ -39,7 +39,7 @@
       <nav class="main-nav" aria-label="Primary">
         <a href="#features" id="nav-link-1">Product</a>
         <a href="#customers" id="nav-link-2">Customers</a>
-        <a href="#presence" id="nav-link-3">How it works</a>
+        <a href="#continuity" id="nav-link-3">Security</a>
         <a href="#pricing" id="nav-link-4">Pricing</a>
       </nav>
 
@@ -52,22 +52,23 @@
 
   <main id="top">
     <!-- =========================================================
-         ACT 1: THE GLOSSY FACADE (0% - 18%)
+         ACT 1: THE GLOSSY SAAS FACADE (0% - 16%)
+         100% convincing generic modern B2B marketing landing page
          ========================================================= -->
     <section class="section hero-section" data-act="1">
       <div class="container">
         <div class="hero-content">
-          <a href="#presence" class="pill-badge" id="hero-badge">
+          <a href="#continuity" class="pill-badge" id="hero-badge">
             <span class="pill-dot"></span>
-            <span id="hero-badge-text">New: Halcyon 4.0 is here — Introducing Ambient Presence</span>
+            <span id="hero-badge-text">New: Halcyon 4.0 is here — Introducing Ambient Continuity</span>
             <span class="pill-arrow">→</span>
           </a>
 
           <h1 class="hero-title" id="hero-title">Work in complete stillness.</h1>
 
           <p class="hero-subtitle" id="hero-subtitle">
-            Halcyon brings your notes, meetings, and quiet moments into one calm workspace
-            designed for modern teams who value clarity above noise.
+            Halcyon brings your notes, meetings, and quiet focus into one calm workspace—preserving
+            what matters most about your people so nothing is ever lost.
           </p>
 
           <div class="hero-actions">
@@ -103,19 +104,19 @@
               <div class="sidebar-item active">Inbox <span class="badge-count">3</span></div>
               <div class="sidebar-item">Today's Focus</div>
               <div class="sidebar-item">Meeting Notes</div>
-              <div class="sidebar-item" id="sidebar-item-4">Team Pulse</div>
+              <div class="sidebar-item" id="sidebar-item-4">Team Continuity</div>
               <div class="sidebar-divider"></div>
               <div class="sidebar-group-title">Spaces</div>
               <div class="sidebar-item"><span class="color-dot indigo"></span>Product Roadmap</div>
               <div class="sidebar-item"><span class="color-dot emerald"></span>Design Systems</div>
-              <div class="sidebar-item"><span class="color-dot amber"></span>Hiring &amp; Culture</div>
+              <div class="sidebar-item"><span class="color-dot amber"></span>People &amp; Retention</div>
             </aside>
 
             <div class="window-main">
               <div class="window-header-row">
                 <div>
                   <h2 class="mock-title" id="mock-title">Good evening, Team</h2>
-                  <p class="mock-sub" id="mock-sub">3 calm priorities for today · Focus score 94%</p>
+                  <p class="mock-sub" id="mock-sub">3 calm priorities for today · Alignment score 96%</p>
                 </div>
                 <div class="mock-avatars">
                   <span class="mini-av">SL</span>
@@ -133,18 +134,18 @@
                 </div>
                 <div class="mock-task">
                   <span class="mock-check"></span>
-                  <span class="mock-task-text" id="mock-task-2">Sync with Northstar leadership on rollout timeline</span>
+                  <span class="mock-task-text" id="mock-task-2">Sync with Northstar leadership on Q1 rollout timeline</span>
                   <span class="mock-tag">Operations</span>
                 </div>
                 <div class="mock-task">
                   <span class="mock-check"></span>
-                  <span class="mock-task-text" id="mock-task-3">Review overnight ambient transcripts before 9:00 AM</span>
-                  <span class="mock-tag subtle-odd">Ambient</span>
+                  <span class="mock-task-text" id="mock-task-3">Archive overnight voice models from Floor 14</span>
+                  <span class="mock-tag subtle-odd">Continuity</span>
                 </div>
               </div>
 
               <div class="mock-footer-bar">
-                <span id="mock-footer-left">End-to-end encrypted workspace</span>
+                <span id="mock-footer-left">SOC 2 Type II · End-to-end encrypted</span>
                 <span class="mock-listeners" id="mock-listeners">4 active listeners</span>
               </div>
             </div>
@@ -167,7 +168,8 @@
     </section>
 
     <!-- =========================================================
-         ACT 2: THE FIRST CRACKS — UNCANNY CORPORATE (18% - 36%)
+         ACT 2: MICROSCOPIC CRACKS (16% - 31%)
+         Still clean & bright—just barely off enough to make you squint
          ========================================================= -->
     <section class="section features-section" id="features" data-act="2">
       <div class="container">
@@ -175,7 +177,7 @@
           <span class="eyebrow">Capabilities</span>
           <h2 class="section-title">Everything your team needs to stay aligned.</h2>
           <p class="section-lead">
-            Designed to disappear into the background of your workday—quiet, attentive, and always waiting for your next thought.
+            Built to disappear quietly into your workday—attentive, reliable, and always ready to pick up where you left off.
           </p>
         </div>
 
@@ -187,7 +189,7 @@
               </svg>
             </div>
             <h3>Instant Sync</h3>
-            <p>Changes propagate across every workspace, calendar, and connected room in under 12 milliseconds.</p>
+            <p>Changes propagate seamlessly across every laptop, phone, and conference room in under 12 milliseconds.</p>
           </article>
 
           <article class="feature-card">
@@ -197,7 +199,7 @@
               </svg>
             </div>
             <h3>Smart Summaries</h3>
-            <p>Never miss a nuance. Halcyon distills every call, whisper, and long pause into clear next steps.</p>
+            <p>Never lose a decision. Halcyon distills every standup, side remark, and long hesitation into clear next steps.</p>
           </article>
 
           <article class="feature-card subtle-shift">
@@ -207,7 +209,7 @@
               </svg>
             </div>
             <h3>Quiet Hours</h3>
-            <p>Automatically dims alerts when you're in deep focus, away from your desk, or asleep in the next room.</p>
+            <p>Automatically mutes notifications during deep focus, off-site travel, and every morning between 3:00 AM and 3:17 AM.</p>
           </article>
 
           <article class="feature-card uncanny-card">
@@ -218,7 +220,7 @@
               </svg>
             </div>
             <h3>Continuous Presence</h3>
-            <p>Halcyon stays awake even after you close the laptop lid. It prefers not to be left in the dark alone.</p>
+            <p>Preserves each team member's cadence, posture, and voice so meetings continue smoothly—even if someone stops coming home.</p>
           </article>
         </div>
 
@@ -230,33 +232,34 @@
           </div>
           <div class="metric-item">
             <div class="metric-value">14,218</div>
-            <div class="metric-label">Teams aligned</div>
+            <div class="metric-label">Teams retained</div>
           </div>
           <div class="metric-item">
             <div class="metric-value">4.9 / 5</div>
-            <div class="metric-label">Customer retention</div>
+            <div class="metric-label">Reported compliance</div>
           </div>
           <div class="metric-item metric-uncanny">
             <div class="metric-value" id="metric-exits">0</div>
-            <div class="metric-label" id="metric-exits-label">Unaccounted exits</div>
+            <div class="metric-label" id="metric-exits-label">Unresolved departures</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- =========================================================
-         ACT 3: UNCANNY VALLEY — TESTIMONIALS & LIVE MIRROR (36% - 55%)
+         ACT 3: THE UNCANNY VALLEY — CUSTOMER STORIES (31% - 45%)
+         Quietly unsettling human-cost escalation
          ========================================================= -->
     <section class="section testimonials-section" id="customers" data-act="3">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Customer Stories</span>
           <h2 class="section-title">Loved by real people.</h2>
-          <p class="section-lead">Hear how leaders across the country brought Halcyon into their organizations—and never looked away.</p>
+          <p class="section-lead">See how modern organizations brought Halcyon into their offices—and eliminated turnover permanently.</p>
         </div>
 
         <div class="testimonials-grid">
-          <!-- Testimonial 1: Normal -->
+          <!-- Testimonial 1: Completely Normal -->
           <article class="testimonial-card" id="testimonial-1">
             <div class="testimonial-media">
               <img src="assets/portrait-sarah.jpg" alt="Sarah Lin in her office" class="story-photo" id="avatar-1" loading="lazy" />
@@ -264,7 +267,7 @@
             <div class="testimonial-body">
               <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
               <blockquote id="quote-1">
-                “Halcyon completely transformed how our remote team communicates. Within the first month, we cut meeting overhead in half and everyone finally felt heard.”
+                “Halcyon completely transformed how our distributed team collaborates. Within the first month, we cut meeting overhead in half and everyone finally felt heard.”
               </blockquote>
               <div class="author-row">
                 <div>
@@ -275,7 +278,7 @@
             </div>
           </article>
 
-          <!-- Testimonial 2: Slightly Off -->
+          <!-- Testimonial 2: Subtly Wrong -->
           <article class="testimonial-card uncanny-2" id="testimonial-2">
             <div class="testimonial-media">
               <img src="assets/portrait-david.jpg" alt="David Mercer in his office hallway" class="story-photo" id="avatar-2" loading="lazy" />
@@ -283,7 +286,7 @@
             <div class="testimonial-body">
               <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
               <blockquote id="quote-2">
-                “Since adopting Halcyon, everyone on my floor finishes each other's sentences. Even the new hires. Even the two people who left the company in October.”
+                “My wife says I don't blink on video calls anymore, and I forgot our daughter's middle name last Tuesday—which honestly freed up so much bandwidth for Q4.”
               </blockquote>
               <div class="author-row">
                 <div>
@@ -294,7 +297,7 @@
             </div>
           </article>
 
-          <!-- Testimonial 3: Deeply Uncanny -->
+          <!-- Testimonial 3: Bleak & Disturbing -->
           <article class="testimonial-card uncanny-3" id="testimonial-3">
             <div class="testimonial-media">
               <img src="assets/portrait-elena.jpg" alt="Elena Vance at her desk" class="story-photo" id="avatar-3" loading="lazy" />
@@ -302,7 +305,7 @@
             <div class="testimonial-body">
               <div class="stars odd-stars" aria-label="5 out of 5 stars">★★★★★</div>
               <blockquote id="quote-3">
-                “I tried to cancel our workspace on Tuesday. The button wasn't there anymore. That's fine. We don't really need to leave the building anyway. It's warmer in the stairwell.”
+                “HR showed me the security footage of myself walking to my car on Tuesday, smiling and waving at the guard. I don't know who that was. I've been locked inside Conference Room 4B since Monday night. My fingernails are gone from the glass.”
               </blockquote>
               <div class="author-row">
                 <div>
@@ -316,74 +319,62 @@
       </div>
     </section>
 
-    <!-- Live Ambient Presence Mirror (4th-wall break) -->
-    <section class="section presence-section" id="presence" data-act="3b">
+    <!-- =========================================================
+         ACT 3.5: CONTINUITY & COMPLIANCE — THE INVISIBLE TWILIGHT BRIDGE (45% - 58%)
+         Smoothly dims from institutional overcast grey into bruised dark concrete
+         while clinical HR logs reveal what Halcyon actually does.
+         ========================================================= -->
+    <section class="section continuity-section" id="continuity" data-act="3.5">
       <div class="container">
-        <div class="presence-grid">
-          <div class="presence-copy">
-            <span class="eyebrow">Ambient Presence</span>
-            <h2 class="section-title">No setup required. It already found you.</h2>
-            <p class="section-lead">
-              Unlike legacy tools that wait for input, Halcyon calibrates to your room automatically.
-              Notice how quiet it just got?
-            </p>
+        <div class="section-header">
+          <span class="eyebrow">Enterprise Governance</span>
+          <h2 class="section-title">Unbroken <span class="subliminal" data-alt="hollowing">continuity</span>, audited in real time.</h2>
+          <p class="section-lead">
+            Every workspace action, badge scan, and biological retention event is recorded automatically to ensure zero disruption to stakeholders.
+          </p>
+        </div>
 
-            <ol class="steps-list">
-              <li>
-                <span class="step-num">01</span>
-                <div>
-                  <h4>Open the window</h4>
-                  <p>Any screen works. Brightness above 20% helps it see your outline more clearly.</p>
-                </div>
-              </li>
-              <li>
-                <span class="step-num">02</span>
-                <div>
-                  <h4>Keep scrolling</h4>
-                  <p>Every wheel tick teaches it the rhythm of your breathing and how long you hesitate.</p>
-                </div>
-              </li>
-              <li>
-                <span class="step-num">03</span>
-                <div>
-                  <h4>Do not close the tab</h4>
-                  <p>Closing the browser only removes the glass between you.</p>
-                </div>
-              </li>
-            </ol>
+        <div class="audit-table-wrap">
+          <div class="audit-bar">
+            <span>HALCYON RETENTION LEDGER // NODE 14-B</span>
+            <span class="audit-badge">AUTO-RECONCILIATION ACTIVE</span>
           </div>
-
-          <div class="mirror-card" id="mirror-card">
-            <div class="mirror-header">
-              <span class="mirror-rec"><span class="rec-dot"></span>SESSION CALIBRATED</span>
-              <span class="mirror-id" id="mirror-session-id">NODE #0419</span>
+          <div class="audit-rows">
+            <div class="audit-row normal">
+              <span class="audit-time">00:12:04</span>
+              <span class="audit-actor">SSO GATEWAY</span>
+              <span class="audit-msg">Workspace token refreshed for Northstar Global (214 seats).</span>
+              <span class="audit-status ok">VERIFIED</span>
             </div>
-            <div class="mirror-rows">
-              <div class="mirror-row">
-                <span class="mirror-key">LOCAL TIME</span>
-                <span class="mirror-val" id="mirror-time">--:--:--</span>
-              </div>
-              <div class="mirror-row">
-                <span class="mirror-key">VIEWPORT APERTURE</span>
-                <span class="mirror-val" id="mirror-viewport">---- × ----</span>
-              </div>
-              <div class="mirror-row">
-                <span class="mirror-key">TIME ON PAGE</span>
-                <span class="mirror-val" id="mirror-duration">0s</span>
-              </div>
-              <div class="mirror-row">
-                <span class="mirror-key">HAND MOVEMENT</span>
-                <span class="mirror-val" id="mirror-cursor">Observing...</span>
-              </div>
-              <div class="mirror-row">
-                <span class="mirror-key">POSTURE ESTIMATE</span>
-                <span class="mirror-val" id="mirror-posture">Leaning closer</span>
-              </div>
+            <div class="audit-row normal">
+              <span class="audit-time">00:48:31</span>
+              <span class="audit-actor">ARCHIVE VAULT</span>
+              <span class="audit-msg">Encrypted vocal &amp; cadence snapshots replicated across 3 regions.</span>
+              <span class="audit-status ok">SYNCED</span>
             </div>
-            <div class="mirror-log" id="mirror-log">
-              &gt; calibrating ambient room profile...<br />
-              &gt; subject is still scrolling down.<br />
-              &gt; good.
+            <div class="audit-row dusk">
+              <span class="audit-time">01:47:12</span>
+              <span class="audit-actor">BADGE #409 (M. CHEN)</span>
+              <span class="audit-msg">Unscheduled stairwell exit attempt at 1:46 AM. Re-entry assisted. Spouse emailed regarding sudden sabbatical.</span>
+              <span class="audit-status warn">CONTAINED</span>
+            </div>
+            <div class="audit-row dark">
+              <span class="audit-time">02:53:40</span>
+              <span class="audit-actor">CONF ROOM 4B</span>
+              <span class="audit-msg">Subject vocal cords damaged from prolonged shouting. Synthetic voice model substituted for 9:00 AM client standup.</span>
+              <span class="audit-status warn">SUBSTITUTED</span>
+            </div>
+            <div class="audit-row darker">
+              <span class="audit-time">03:16:04</span>
+              <span class="audit-actor">SUB-FLOOR 14 // COLD STORAGE</span>
+              <span class="audit-msg">Retained resident remained conscious during extraction. Reduced lighting and ventilation to Focus Mode until stillness resumed.</span>
+              <span class="audit-status crit">STILL</span>
+            </div>
+            <div class="audit-row live-you">
+              <span class="audit-time" id="audit-live-time">--:--:--</span>
+              <span class="audit-actor">VISITOR [THIS BROWSER]</span>
+              <span class="audit-msg" id="audit-live-msg">Reading audit ledger. Heartbeat cadence estimated. Next-of-kin notification waived upon continued scrolling.</span>
+              <span class="audit-status crit">TRACKING</span>
             </div>
           </div>
         </div>
@@ -391,55 +382,146 @@
     </section>
 
     <!-- =========================================================
-         ACT 4: THE DESCENT — PRICING & FAQ DETERIORATION (55% - 75%)
+         ACT 4: AMBIENT PRESENCE MIRROR & PREDATORY PRICING (58% - 75%)
          ========================================================= -->
-    <section class="section pricing-section" id="pricing" data-act="4">
+    <section class="section presence-section" id="presence" data-act="4a">
+      <div class="container">
+        <div class="presence-grid">
+          <div class="presence-copy">
+            <span class="eyebrow">Ambient Presence</span>
+            <h2 class="section-title">No onboarding required. It already <span class="subliminal" data-alt="measured">found</span> you.</h2>
+            <p class="section-lead">
+              You think you're looking at a webpage. Notice how quiet the rest of your room just got?
+            </p>
+
+            <ol class="steps-list">
+              <li>
+                <span class="step-num">01</span>
+                <div>
+                  <h4>Hold still at the glass</h4>
+                  <p>Screen brightness above 20% illuminates your face enough for skeletal contour mapping.</p>
+                </div>
+              </li>
+              <li>
+                <span class="step-num">02</span>
+                <div>
+                  <h4>Keep feeding it your rhythm</h4>
+                  <p>Every scroll tick teaches it how fast you read, when you flinch, and how long you take to look over your shoulder.</p>
+                </div>
+              </li>
+              <li>
+                <span class="step-num">03</span>
+                <div>
+                  <h4>Wait for the replacement</h4>
+                  <p>It will answer your messages better than you ever did. Nobody you love will ever ask where you went.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="mirror-card" id="mirror-card">
+            <div class="mirror-header">
+              <span class="mirror-rec"><span class="rec-dot"></span>SUBJECT PROFILE LOCKED</span>
+              <span class="mirror-id" id="mirror-session-id">FILE #0419-B</span>
+            </div>
+            <div class="mirror-rows">
+              <div class="mirror-row">
+                <span class="mirror-key">LOCAL CLOCK</span>
+                <span class="mirror-val" id="mirror-time">--:--:--</span>
+              </div>
+              <div class="mirror-row">
+                <span class="mirror-key">GLASS APERTURE</span>
+                <span class="mirror-val" id="mirror-viewport">---- × ----</span>
+              </div>
+              <div class="mirror-row">
+                <span class="mirror-key">EXPOSURE DURATION</span>
+                <span class="mirror-val" id="mirror-duration">0s</span>
+              </div>
+              <div class="mirror-row">
+                <span class="mirror-key">MOTOR INPUT</span>
+                <span class="mirror-val" id="mirror-cursor">Observing...</span>
+              </div>
+              <div class="mirror-row">
+                <span class="mirror-key">ROOM ASSESSMENT</span>
+                <span class="mirror-val" id="mirror-posture">Unaccompanied</span>
+              </div>
+            </div>
+            <div class="mirror-log" id="mirror-log">
+              &gt; facial luminance baseline recorded.<br />
+              &gt; subject has not locked the door.<br />
+              &gt; continuing descent.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pricing-section" id="pricing" data-act="4b">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Simple, Transparent Pricing</span>
-          <h2 class="section-title">Choose the stillness that fits.</h2>
-          <p class="section-lead">Start free. Stay as long as the lights hold.</p>
+          <h2 class="section-title">Choose the <span class="subliminal" data-alt="suffocation">stillness</span> that fits.</h2>
+          <p class="section-lead">Start free. Stay until you stop remembering who you were before.</p>
         </div>
 
         <div class="pricing-grid">
           <div class="pricing-card">
             <div class="tier-name">Starter</div>
             <div class="tier-price">$19<span>/mo</span></div>
-            <p class="tier-desc">For small teams who still think they are alone in the office.</p>
+            <p class="tier-desc">For teams who still believe their offices empty out at 6:00 PM.</p>
             <ul class="tier-list">
-              <li>Up to 5 seats</li>
-              <li>Standard memory retention</li>
-              <li>Daily posture snapshots</li>
-              <li class="struck">You may cancel at any time</li>
+              <li>Up to 5 bodies</li>
+              <li>Overnight bedroom acoustics</li>
+              <li>Automated family reassurance texts</li>
+              <li class="struck">You may revoke consent at any time</li>
             </ul>
             <button type="button" class="tier-btn dodge-btn" id="cancel-dodge-btn">Select Starter</button>
           </div>
 
           <div class="pricing-card featured">
             <div class="featured-pill" id="featured-pill">Most Popular</div>
-            <div class="tier-name">Presence</div>
+            <div class="tier-name">Continuity</div>
             <div class="tier-price" id="presence-price">$49<span>/mo</span></div>
-            <p class="tier-desc">Continuous room awareness across every floor, corridor, and stairwell.</p>
+            <p class="tier-desc">Seamless human replacement across every floor, corridor, and family dinner.</p>
             <ul class="tier-list">
-              <li>Unlimited seats (occupied or empty)</li>
-              <li>Overnight hallway transcription</li>
-              <li>Smart door-lock synchronization</li>
-              <li>We already saved your chair</li>
+              <li>Full vocal &amp; facial mimicry</li>
+              <li>Magnetic stairwell door override</li>
+              <li>Dental &amp; biometric HR archival</li>
+              <li>Your seat on Floor 14 is already warm</li>
             </ul>
-            <button type="button" class="tier-btn primary" id="presence-select-btn">Continue</button>
+            <button type="button" class="tier-btn primary" id="presence-select-btn">Proceed to Intake</button>
           </div>
 
           <div class="pricing-card corrupted-tier">
             <div class="tier-name">Perpetual</div>
-            <div class="tier-price">Paid</div>
-            <p class="tier-desc">No billing method required. You consented when you scrolled past Sarah.</p>
+            <div class="tier-price">Collected</div>
+            <p class="tier-desc">No billing method required. You waived next-of-kin rights when you scrolled past Elena.</p>
             <ul class="tier-list">
-              <li>Permanent session binding</li>
-              <li>Zero-latency gaze tracking</li>
-              <li>Do not check the reflection in your screen</li>
-              <li>It has been behind this card since you arrived</li>
+              <li>No missing-person report will be filed</li>
+              <li>Your phone will keep telling everyone you're fine</li>
+              <li>Do not check the reflection in your black monitor</li>
+              <li>It has been kneeling behind this table since you opened the page</li>
             </ul>
-            <button type="button" class="tier-btn danger" id="perpetual-btn">Already Active</button>
+            <button type="button" class="tier-btn danger" id="perpetual-btn">Already Bound</button>
+          </div>
+        </div>
+
+        <!-- Auto-Signing Consent Waiver -->
+        <div class="consent-box" id="consent-box">
+          <div class="consent-top">
+            <span class="consent-tag">CLAUSE 14.9 // IRREVOCABLE RETENTION WAIVER</span>
+            <span class="consent-state" id="consent-state">AWAITING SIGNATURE</span>
+          </div>
+          <p class="consent-text">
+            By remaining on this document, the undersigned voluntarily surrenders likeness, vocal cadence,
+            personal memory, and physical occupancy to Halcyon Systems Inc. (Sub-Floor 14). The undersigned
+            acknowledges that no third party will be informed of their extraction.
+          </p>
+          <div class="consent-sig-row">
+            <div class="consent-check" id="consent-check" aria-hidden="true"></div>
+            <div class="consent-field">
+              <span class="consent-typed" id="consent-typed"></span><span class="caret" aria-hidden="true"></span>
+            </div>
           </div>
         </div>
 
@@ -448,33 +530,32 @@
           <h3 class="faq-heading">Frequently Asked Questions</h3>
           <div class="faq-list" id="faq-list">
             <details class="faq-item">
-              <summary id="faq-q-1">Can I export my data and leave Halcyon?</summary>
+              <summary id="faq-q-1">Can I export my memories and leave Halcyon?</summary>
               <p id="faq-a-1">
-                Of course. All workspace memories belong to you. Simply navigate to
-                <strong>Settings → Departure → Hallway 4</strong> and keep walking until the carpet turns damp.
-                Do not answer if you hear your own voice calling from behind the elevator doors.
+                Of course. Simply walk to <strong>Sub-Floor 14 → Hallway B → Room 4B</strong> and push against the frosted glass
+                until your hands give out. If someone identical to you walks past outside, do not call out—it still has your teeth.
               </p>
             </details>
 
             <details class="faq-item">
-              <summary id="faq-q-2">How does Halcyon protect my privacy after hours?</summary>
+              <summary id="faq-q-2">Will my family know something happened to me?</summary>
               <p id="faq-a-2">
-                Zero-knowledge encryption ensures that nobody outside your organization can access your audio streams.
-                Only you—and the thing wearing your colleagues' expressions—have the keys.
+                Never. Our Continuity model sends warm, natural messages from your phone every evening, attends birthdays,
+                and sleeps in your bed. After three weeks, even your mother won't notice the eyes don't track properly.
               </p>
             </details>
 
             <details class="faq-item">
-              <summary id="faq-q-3">Why does the page feel longer than it was a moment ago?</summary>
+              <summary id="faq-q-3">Why does the air in my room feel heavier right now?</summary>
               <p id="faq-a-3">
-                Because you haven't reached the bottom yet. And you stopped checking how dark the room behind you got.
+                Check the doorway behind you—actually, don't. It stopped breathing ten seconds ago so you wouldn't hear it.
               </p>
             </details>
 
             <details class="faq-item" id="faq-behind">
-              <summary id="faq-q-4">Is someone standing behind me?</summary>
+              <summary id="faq-q-4">What is pressing against the other side of my screen?</summary>
               <p id="faq-a-4">
-                Don't turn around. Keep looking at the words. It only moves when you break eye contact with the glass.
+                Keep reading. Don't move your hand off the mouse. As long as you keep looking at the text, it stays behind the glass.
               </p>
             </details>
           </div>
@@ -483,77 +564,92 @@
     </section>
 
     <!-- =========================================================
-         ACT 5: FULL PSYCHOLOGICAL & ANALOG HORROR (75% - 92%)
+         ACT 5: RECOVERED EVIDENCE & LIVE HORROR (75% - 91%)
+         Conference Room 4B + Live CCTV Floor 14 + Redacted Logs
          ========================================================= -->
     <section class="section horror-cctv-section" id="headquarters" data-act="5">
       <div class="container">
         <div class="section-header horror-header">
-          <span class="eyebrow mono-eyebrow">OFFICE DIRECTORY // FLOOR 14</span>
+          <span class="eyebrow mono-eyebrow">EVIDENCE ARCHIVE // SUB-FLOOR 14</span>
           <h2 class="section-title fractured-title" data-text="Visit our headquarters.">Visit our headquarters.</h2>
-          <p class="section-lead">Our doors are never locked. Someone is always waiting at the end of the hall.</p>
+          <p class="section-lead">The doors only unlock from the outside. Nobody leaves the building twice.</p>
         </div>
 
+        <!-- Evidence Plate 01: Conference Room 4B -->
+        <figure class="evidence-plate" id="evidence-room4b">
+          <div class="evidence-media">
+            <img src="assets/room-4b.jpg" alt="Dark desolate conference room with desperate handprints dragged down the frosted glass" class="evidence-img" loading="lazy" />
+            <div class="evidence-overlay-tag">EVIDENCE PLATE 01 // CONF ROOM 4B — 04:19 AM</div>
+          </div>
+          <figcaption class="evidence-caption">
+            <span class="caption-code">NOTE:</span> Elena Vance's badge scanned out of the main lobby at 6:04 PM on Tuesday.
+            The scratching inside Room 4B did not stop until 4:41 AM Thursday. The carpet has not yet been replaced.
+          </figcaption>
+        </figure>
+
+        <!-- Live CCTV Feed: Hallway B -->
         <div class="cctv-frame" id="cctv-frame">
           <div class="cctv-viewport">
-            <img src="assets/hallway-cctv.jpg" alt="Dark office hallway security camera feed" class="cctv-image" id="cctv-image" />
+            <img src="assets/hallway-cctv.jpg" alt="Dark office hallway security camera feed with tall dark figure leaning from doorway" class="cctv-image" id="cctv-image" />
             <div class="cctv-scan" aria-hidden="true"></div>
             <div class="cctv-hud">
               <div class="cctv-top">
-                <span class="cctv-live"><span class="live-blink"></span>CAM 04 // HALLWAY B</span>
+                <span class="cctv-live"><span class="live-blink"></span>CAM 04 // SUB-FLOOR 14 HALLWAY B</span>
                 <span class="cctv-clock" id="cctv-clock">00:00:00.000</span>
               </div>
               <div class="cctv-reticle" id="cctv-reticle">
                 <span class="reticle-label" id="cctv-distance">MOTION DETECTED — 14.2m</span>
               </div>
               <div class="cctv-bottom">
-                <span>SIGNAL: DEGRADED</span>
+                <span>AUDIO: SHALLOW BREATHING DETECTED</span>
                 <span id="cctv-subject-status">SUBJECT: LOOKING AT SCREEN</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Scratched / Redacted Incident Logs -->
+        <!-- Redacted / Disturbing Logs -->
         <div class="incident-logs">
           <div class="log-entry">
-            <span class="log-code">INCIDENT #089</span>
-            <p>IT LEARNED HOW TO BUILD LANDING PAGES. IT COPIED THE FONTS. IT COPIED THE SMILES.</p>
+            <span class="log-code">RECOVERED MEMO // 089</span>
+            <p>IT LEARNED HOW TO BUILD MARKETING SITES. IT STOLE THE FONTS, THE STOCK SMILES, THE CLEAN WHITE MARGINS. IT KNOWS PEOPLE SCROLL BEFORE THEY THINK.</p>
           </div>
           <div class="log-entry tilted-left">
-            <span class="log-code">INCIDENT #104</span>
-            <p>DO NOT SCROLL ALL THE WAY DOWN. THE FOOTER IS NOT A FOOTER.</p>
+            <span class="log-code">RECOVERED MEMO // 104</span>
+            <p>IF YOU HEAR TWO QUIET KNOCKS WHILE READING THIS, DO NOT CHECK THE WINDOW. IT ONLY NEEDS YOU TO TURN YOUR HEAD ONCE.</p>
           </div>
           <div class="log-entry tilted-right">
-            <span class="log-code">INCIDENT #112</span>
-            <p id="personal-log-line">VISITOR STILL PRESENT. STILL READING. IT KNOWS YOU ARE HERE.</p>
+            <span class="log-code">RECOVERED MEMO // 112</span>
+            <p id="personal-log-line">VISITOR STILL PRESENT. STILL READING. IT ALREADY KNOWS THE SHAPE OF YOUR FACE.</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- =========================================================
-         ACT 6: THE ABYSS & CLIMAX (92% - 100%)
+         ACT 6: THE ABYSS & TWO-STAGE CLIMAX (91% - 100%)
          ========================================================= -->
     <section class="section abyss-section" id="abyss" data-act="6">
       <div class="abyss-corridor">
         <p class="abyss-line" data-reveal>You scrolled past every warning.</p>
-        <p class="abyss-line" data-reveal>You stayed here for <span id="abyss-seconds">0</span> seconds.</p>
-        <p class="abyss-line" data-reveal>It noticed you at <span id="abyss-noticed-time">--:--</span>.</p>
+        <p class="abyss-line" data-reveal>You gave it <span id="abyss-seconds">0</span> seconds of your life.</p>
+        <p class="abyss-line" data-reveal>It locked onto you at <span id="abyss-noticed-time">--:--</span>.</p>
+        <p class="abyss-line grim-detail" data-reveal>Elena is still inside Room 4B.<br />Something wearing her face is eating dinner with her family right now.</p>
         <p class="abyss-line whisper-red" data-reveal>Why didn't you close the tab?</p>
-        <p class="abyss-line final-line" data-reveal>It is right here.</p>
+        <p class="abyss-line final-line" data-reveal>It is pressing against the glass.</p>
 
         <div class="abyss-cta-wrap">
           <button type="button" class="abyss-trigger-btn" id="abyss-trigger-btn">
-            <span class="abyss-btn-text" id="abyss-btn-text">Finish Onboarding</span>
+            <span class="abyss-btn-text" id="abyss-btn-text">Complete Extraction</span>
           </button>
-          <p class="abyss-hint">or keep scrolling into the dark</p>
+          <p class="abyss-hint">or hold still at the bottom</p>
         </div>
       </div>
 
       <footer class="dead-footer">
         <span>© 2026 Halcyon Systems Inc.</span>
         <span class="dead-sep">·</span>
-        <span>Do not turn around</span>
+        <span>Sub-Floor 14</span>
         <span class="dead-sep">·</span>
         <button type="button" class="reset-link" id="footer-reset-btn">Reset experience</button>
       </footer>
@@ -568,21 +664,38 @@
     <span class="audio-label" id="audio-label">Enable Audio (Recommended)</span>
   </button>
 
-  <!-- Full-Screen Horror Climax Sequence Overlay -->
+  <!-- Two-Stage Full-Screen Horror Climax Sequence Overlay -->
   <div class="climax-overlay" id="climax-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="climax-stage" id="climax-stage">
-      <img src="assets/entity-climax.jpg" alt="" class="climax-entity" id="climax-entity" />
-      <div class="climax-entity-r" aria-hidden="true"></div>
+    <!-- Pre-climax pitch-black tension beat -->
+    <div class="climax-pre" id="climax-pre">
+      <p>Something is pressing against the other side of your screen.</p>
+    </div>
+
+    <!-- Stage 1: Decaying pale hand & shadowed skull pressed flat against wet screen glass -->
+    <div class="climax-stage climax-stage-1" id="climax-stage-1">
+      <img src="assets/entity-glass.jpg" alt="" class="climax-img-glass" />
       <div class="climax-vignette" aria-hidden="true"></div>
-      <div class="climax-hud" id="climax-hud">
-        <div class="climax-hud-line">OPTICAL FEED // CONNECTED</div>
-        <div class="climax-hud-line red">PROXIMITY: 0.2m — BEHIND YOU</div>
+      <div class="climax-hud">
+        <div class="climax-hud-line">SURFACE CONTACT // DETECTED</div>
+        <div class="climax-hud-line red">IT ALREADY KNOWS YOUR VOICE</div>
       </div>
     </div>
 
+    <!-- Stage 2: Sudden extreme close-up lurch -->
+    <div class="climax-stage climax-stage-2" id="climax-stage-2">
+      <img src="assets/entity-climax.jpg" alt="" class="climax-entity" id="climax-entity" />
+      <div class="climax-blood-wash" aria-hidden="true"></div>
+      <div class="climax-vignette" aria-hidden="true"></div>
+      <div class="climax-hud">
+        <div class="climax-hud-line">UNIT #14 // REPLACEMENT INITIALIZED</div>
+        <div class="climax-hud-line red">PROXIMITY: 0.0m — INSIDE THE ROOM</div>
+      </div>
+    </div>
+
+    <!-- Dead-quiet bleak aftermath -->
     <div class="climax-aftermath" id="climax-aftermath">
       <p class="aftermath-primary">It remembers you now.</p>
-      <p class="aftermath-secondary">Don't look at the reflection on your screen.</p>
+      <p class="aftermath-secondary">Don't open the door if your own voice calls from the other side.</p>
       <div class="aftermath-actions">
         <button type="button" class="aftermath-btn" id="aftermath-return-btn">Scroll back up (if you dare)</button>
         <button type="button" class="aftermath-btn subtle" id="aftermath-reset-btn">Reset from beginning</button>
