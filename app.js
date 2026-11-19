@@ -147,6 +147,9 @@
     aftermathResetBtn: document.getElementById('aftermath-reset-btn'),
     footerResetBtn: document.getElementById('footer-reset-btn'),
 
+    evidenceRoom4b: document.getElementById('evidence-room4b'),
+    cctvFrame: document.getElementById('cctv-frame'),
+    decayCanvas: document.getElementById('decay-canvas'),
     eyesCanvas: document.getElementById('eyes-canvas')
   };
 
@@ -660,6 +663,202 @@
   }
 
   // =========================================================================
+  // SILENT HILL "OTHERWORLD" DECAY CANVAS
+  // Creeping organic dark-crimson veins from corners + top seepage drips + ash snow
+  // =========================================================================
+
+  const decayCtx = el.decayCanvas ? el.decayCanvas.getContext('2d') : null;
+  let veinSegments = [];
+  let topDrips = [];
+  let ashMotes = [];
+  let otherworldStaticTriggered = false;
+  let lastHoverStaticAt = 0;
+
+  function buildOtherworldGeometry() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    veinSegments = [];
+
+    // Deterministic pseudo-random helper so veins stay rock-steady during scroll
+    let seed = 140919;
+    const rand = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+
+    const growVein = (x, y, angle, length, width, depth, maxDepth, startT) => {
+      if (depth > maxDepth || length < 10) return;
+      const midX = x + Math.cos(angle) * (length * 0.5) + (rand() - 0.5) * length * 0.24;
+      const midY = y + Math.sin(angle) * (length * 0.5) + (rand() - 0.5) * length * 0.24;
+      const endX = x + Math.cos(angle) * length;
+      const endY = y + Math.sin(angle) * length;
+      const endT = Math.min(1, startT + 0.14);
+
+      veinSegments.push({ x, y, midX, midY, endX, endY, width, startT, endT });
+
+      // Main continuation
+      growVein(
+        endX,
+        endY,
+        angle + (rand() - 0.5) * 0.55,
+        length * (0.76 + rand() * 0.14),
+        width * 0.72,
+        depth + 1,
+        maxDepth,
+        endT * 0.92
+      );
+
+      // Forking capillary branch
+      if (rand() < 0.72) {
+        const side = rand() < 0.5 ? -1 : 1;
+        growVein(
+          endX,
+          endY,
+          angle + side * (0.35 + rand() * 0.5),
+          length * (0.58 + rand() * 0.22),
+          width * 0.56,
+          depth + 1,
+          maxDepth,
+          endT * 0.95
+        );
+      }
+    };
+
+    // Anchor creeping organic vein clusters along all four corners & dark side margins
+    const roots = [
+      { x: 0, y: 0, a: 0.68, len: w * 0.11 },
+      { x: 0, y: h * 0.14, a: 0.25, len: w * 0.09 },
+      { x: w, y: 0, a: Math.PI - 0.68, len: w * 0.11 },
+      { x: w, y: h * 0.18, a: Math.PI - 0.25, len: w * 0.09 },
+      { x: 0, y: h, a: -0.72, len: w * 0.12 },
+      { x: 0, y: h * 0.72, a: -0.18, len: w * 0.09 },
+      { x: w, y: h, a: Math.PI + 0.72, len: w * 0.12 },
+      { x: w, y: h * 0.76, a: Math.PI + 0.18, len: w * 0.09 }
+    ];
+
+    roots.forEach((r) => {
+      growVein(r.x, r.y, r.a, r.len, 3.4, 0, 5, 0.02);
+    });
+
+    // Top-edge viscous crimson seepage trails
+    topDrips = [];
+    const dripCount = Math.max(9, Math.floor(w / 120));
+    for (let i = 0; i < dripCount; i++) {
+      topDrips.push({
+        x: (i + 0.2 + rand() * 0.6) * (w / dripCount),
+        maxLen: 38 + rand() * 145,
+        width: 2 + rand() * 3.8,
+        threshold: 0.28 + rand() * 0.36
+      });
+    }
+
+    // Floating Silent Hill ash flakes & faint ember motes
+    ashMotes = [];
+    const moteCount = w < 760 ? 28 : 56;
+    for (let i = 0; i < moteCount; i++) {
+      ashMotes.push({
+        x: rand() * w,
+        y: rand() * h,
+        r: 0.9 + rand() * 2.1,
+        vy: 0.28 + rand() * 0.55,
+        vx: -0.25 + rand() * 0.6,
+        swayPhase: rand() * Math.PI * 2,
+        isEmber: rand() < 0.14
+      });
+    }
+  }
+
+  function renderOtherworldDecay(timeMs, otherworldLevel) {
+    if (!decayCtx || !el.decayCanvas) return;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    decayCtx.clearRect(0, 0, w, h);
+
+    if (otherworldLevel < 0.02) return;
+
+    const pulseVal = parseFloat(root.style.getPropertyValue('--pulse')) || 0;
+    const t = timeMs * 0.001;
+
+    // 1. Branching dark-crimson organic veins creeping inward with scroll depth
+    decayCtx.lineCap = 'round';
+    veinSegments.forEach((seg) => {
+      if (otherworldLevel <= seg.startT) return;
+      const growth = clamp01((otherworldLevel - seg.startT) / (seg.endT - seg.startT || 0.1));
+      const curEndX = lerp(seg.x, seg.endX, growth);
+      const curEndY = lerp(seg.y, seg.endY, growth);
+      const curMidX = lerp(seg.x, seg.midX, growth);
+      const curMidY = lerp(seg.y, seg.midY, growth);
+
+      // Deep dried blood-rust base
+      decayCtx.beginPath();
+      decayCtx.moveTo(seg.x, seg.y);
+      decayCtx.quadraticCurveTo(curMidX, curMidY, curEndX, curEndY);
+      decayCtx.strokeStyle = `rgba(${74 + Math.round(pulseVal * 32)}, 8, 12, ${(0.52 * otherworldLevel).toFixed(3)})`;
+      decayCtx.lineWidth = seg.width * (1 + pulseVal * 0.12);
+      decayCtx.stroke();
+
+      // Thin wet crimson highlight core
+      if (seg.width > 1.3) {
+        decayCtx.beginPath();
+        decayCtx.moveTo(seg.x, seg.y);
+        decayCtx.quadraticCurveTo(curMidX, curMidY, curEndX, curEndY);
+        decayCtx.strokeStyle = `rgba(145, 22, 24, ${(0.28 * otherworldLevel).toFixed(3)})`;
+        decayCtx.lineWidth = seg.width * 0.35;
+        decayCtx.stroke();
+      }
+    });
+
+    // 2. Viscous dark crimson seepage dripping from top edge in deep Otherworld
+    topDrips.forEach((drip) => {
+      const prog = clamp01((otherworldLevel - drip.threshold) / 0.45);
+      if (prog <= 0.01) return;
+      const len = drip.maxLen * prog;
+
+      const grad = decayCtx.createLinearGradient(drip.x, 0, drip.x, len);
+      grad.addColorStop(0, 'rgba(62, 6, 10, 0.82)');
+      grad.addColorStop(0.75, 'rgba(92, 10, 14, 0.62)');
+      grad.addColorStop(1, 'rgba(115, 14, 18, 0.85)');
+
+      decayCtx.beginPath();
+      decayCtx.moveTo(drip.x, 0);
+      decayCtx.lineTo(drip.x, len);
+      decayCtx.strokeStyle = grad;
+      decayCtx.lineWidth = drip.width;
+      decayCtx.stroke();
+
+      // Heavy droplet bead at the bottom tip
+      decayCtx.beginPath();
+      decayCtx.arc(drip.x, len, drip.width * 0.72, 0, Math.PI * 2);
+      decayCtx.fillStyle = 'rgba(105, 12, 16, 0.82)';
+      decayCtx.fill();
+    });
+
+    // 3. Floating Silent Hill Ash Snow & Rare Subterranean Embers
+    const ashAlpha = rangeMap(otherworldLevel, 0.22, 0.85);
+    if (ashAlpha > 0.02) {
+      ashMotes.forEach((m) => {
+        m.y += m.vy;
+        m.x += m.vx + Math.sin(t * 0.9 + m.swayPhase) * 0.28;
+        if (m.y > h + 8) {
+          m.y = -8;
+          m.x = Math.random() * w;
+        }
+        if (m.x < -8) m.x = w + 8;
+        if (m.x > w + 8) m.x = -8;
+
+        decayCtx.beginPath();
+        decayCtx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+        if (m.isEmber) {
+          decayCtx.fillStyle = `rgba(195, 58, 28, ${(ashAlpha * 0.55).toFixed(3)})`;
+        } else {
+          decayCtx.fillStyle = `rgba(186, 178, 174, ${(ashAlpha * 0.34).toFixed(3)})`;
+        }
+        decayCtx.fill();
+      });
+    }
+  }
+
+  // =========================================================================
   // PERIPHERAL-HALLUCINATION WATCHING EYES CANVAS
   // Eyes open softly in dark margins and SNAP SHUT if you approach them!
   // =========================================================================
@@ -677,11 +876,18 @@
   ];
 
   function resizeCanvas() {
-    if (!el.eyesCanvas) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    el.eyesCanvas.width = Math.floor(window.innerWidth * dpr);
-    el.eyesCanvas.height = Math.floor(window.innerHeight * dpr);
-    if (eyeCtx) eyeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (el.eyesCanvas) {
+      el.eyesCanvas.width = Math.floor(window.innerWidth * dpr);
+      el.eyesCanvas.height = Math.floor(window.innerHeight * dpr);
+      if (eyeCtx) eyeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    if (el.decayCanvas) {
+      el.decayCanvas.width = Math.floor(window.innerWidth * dpr);
+      el.decayCanvas.height = Math.floor(window.innerHeight * dpr);
+      if (decayCtx) decayCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildOtherworldGeometry();
+    }
   }
 
   function renderEyes(timeMs, horrorLevel) {
@@ -825,7 +1031,7 @@
       }, 700)
     );
 
-    // 1.85s: Stage 1 — silent glass contact first, then subterranean thud
+    // 1.85s: Stage 1 — silent glass contact first, then SHARP GLASS FRACTURE under the entity's palm!
     climaxTimers.push(
       setTimeout(() => {
         el.climaxOverlay.classList.remove('phase-pre');
@@ -836,16 +1042,19 @@
 
     climaxTimers.push(
       setTimeout(() => {
+        el.climaxOverlay.classList.add('cracked');
+        audio.playGlassCrack();
         audio.playSubtleThud();
-      }, 2250)
+      }, 2400)
     );
 
-    // 4.05s: Stage 2 — visceral close-up lurch + hell-ember wash + horror sting
+    // 4.05s: Stage 2 — visceral close-up lurch + deeper shatter + hell-ember wash + horror sting
     climaxTimers.push(
       setTimeout(() => {
         body.classList.add('trembling');
         el.climaxOverlay.classList.remove('phase-stage-1');
-        el.climaxOverlay.classList.add('phase-stage-2');
+        el.climaxOverlay.classList.add('phase-stage-2', 'cracked-deep');
+        audio.playGlassCrack();
         audio.playClimaxSting();
         document.title = 'IT HAS YOUR SEAT';
       }, 4050)
@@ -855,7 +1064,7 @@
     climaxTimers.push(
       setTimeout(() => {
         body.classList.remove('trembling');
-        el.climaxOverlay.classList.remove('phase-stage-2');
+        el.climaxOverlay.classList.remove('phase-stage-2', 'cracked', 'cracked-deep');
       }, 6800)
     );
 
@@ -884,7 +1093,9 @@
       'phase-pre',
       'phase-stage-1',
       'phase-stage-2',
-      'phase-aftermath'
+      'phase-aftermath',
+      'cracked',
+      'cracked-deep'
     );
     el.climaxOverlay.setAttribute('aria-hidden', 'true');
 
@@ -914,9 +1125,11 @@
     dodgeCount = 0;
     metricTicked = false;
     consentSigned = false;
+    otherworldStaticTriggered = false;
     currentStage = '';
 
     clearClimaxTimers();
+    audio.resetSiren();
     if (consentInterval) {
       clearInterval(consentInterval);
       consentInterval = null;
@@ -928,7 +1141,9 @@
       'phase-pre',
       'phase-stage-1',
       'phase-stage-2',
-      'phase-aftermath'
+      'phase-aftermath',
+      'cracked',
+      'cracked-deep'
     );
     el.climaxOverlay.setAttribute('aria-hidden', 'true');
 
@@ -1078,6 +1293,17 @@
     }
   });
 
+  // Silent Hill pocket-radio static crackle when inspecting Otherworld evidence or CCTV
+  const triggerHoverRadioStatic = () => {
+    const now = Date.now();
+    if (now - lastHoverStaticAt > 4200 && !climaxActive) {
+      lastHoverStaticAt = now;
+      audio.playRadioStatic(0.55, 0.09);
+    }
+  };
+  if (el.evidenceRoom4b) el.evidenceRoom4b.addEventListener('mouseenter', triggerHoverRadioStatic);
+  if (el.cctvFrame) el.cctvFrame.addEventListener('mouseenter', triggerHoverRadioStatic);
+
   el.abyssTriggerBtn.addEventListener('click', triggerClimax);
   el.aftermathReturnBtn.addEventListener('click', closeClimaxToHauntedSite);
   el.aftermathResetBtn.addEventListener('click', resetExperience);
@@ -1182,13 +1408,21 @@
       : currentDread;
 
     const uncanny = rangeMap(effectiveDread, 0.22, 0.58);
+    const otherworld = rangeMap(effectiveDread, 0.54, 0.96);
     const horror = rangeMap(effectiveDread, 0.62, 0.92);
     const hell = rangeMap(effectiveDread, 0.74, 0.98);
 
     root.style.setProperty('--dread', effectiveDread.toFixed(4));
     root.style.setProperty('--uncanny', uncanny.toFixed(4));
+    root.style.setProperty('--otherworld', otherworld.toFixed(4));
     root.style.setProperty('--horror', horror.toFixed(4));
     root.style.setProperty('--hell', hell.toFixed(4));
+
+    // Pocket-radio static crackle when crossing below the False Footer into the Otherworld
+    if (effectiveDread >= 0.74 && !otherworldStaticTriggered && !surfaceDeceptionActive) {
+      otherworldStaticTriggered = true;
+      audio.playRadioStatic(0.85, 0.14);
+    }
 
     applyContinuousAtmosphere(currentDread);
     updateStageCopy(currentDread);
@@ -1198,6 +1432,7 @@
     updateBrandEye();
     updateCCTVProximity();
     updateCCTVClock();
+    renderOtherworldDecay(timeMs, otherworld);
     renderEyes(timeMs, horror);
 
     requestAnimationFrame(tick);

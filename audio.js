@@ -1,12 +1,14 @@
 /* ==========================================================================
-   HALCYON (v3) — Psychological Acoustic Dread Engine
+   HALCYON (v4) — Silent Hill "Otherworld" Procedural Audio & Foley Engine
    - Serene SaaS ambient chord (0% - 28%)
-   - Continuous downward Shepard-tone auditory illusion (endless falling vertigo)
-   - Fluorescent office ballast hum + hollow room static
-   - Subterranean pit rumble + irregular cold breathing
-   - Stereo-panned muffled knocks (peripheral acoustic illusion)
-   - Sudden Vacuum Silence right before the bottom of the pit
-   - Cinema-grade two-stage horror climax sting & isolated aftermath knock
+   - Continuous downward Shepard-tone vertigo illusion
+   - Fluorescent hum + subterranean pit drone + shallow cold breathing
+   - Silent Hill pocket-radio static bursts on threshold crossings
+   - Distant mournful industrial siren swell when crossing below the False Footer
+   - Visceral stereo-panned Foley: rusted metal scraping, wet heavy dragging,
+     distant pipe clanks, and muffled knocks
+   - Sharp Glass-Fracture transient synced to the climax crack overlay
+   - Abrupt Vacuum Silence at the bottom of the pit before the climax sting
    ========================================================================== */
 
 (function () {
@@ -16,12 +18,14 @@
       this.enabled = false;
       this.dread = 0;
       this.inVacuum = false;
+      this.sirenPlayed = false;
       this.heartbeatTimer = null;
-      this.knockTimer = null;
+      this.foleyTimer = null;
       this.shepardTimer = null;
       this.shepardPhase = 0;
       this.onPulse = null;
       this.nodes = {};
+      this.noiseBuffer = null;
     }
 
     init() {
@@ -36,12 +40,28 @@
       master.gain.value = 0.0001;
       master.connect(ctx.destination);
 
-      // Dedicated bed bus so we can abruptly drop to Vacuum Silence without muting stings/knocks
       const bedBus = ctx.createGain();
       bedBus.gain.value = 1.0;
       bedBus.connect(master);
 
-      // 1. Serene SaaS Ambient Pad (warm & convincing through Act 1-2)
+      // Shared white/brown noise buffers for room air, radio static, metal scraping & wet foley
+      const bufferSize = ctx.sampleRate * 3;
+      const brownBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const brownData = brownBuffer.getChannelData(0);
+      const whiteBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const whiteData = whiteBuffer.getChannelData(0);
+
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        whiteData[i] = white;
+        brownData[i] = (lastOut + 0.026 * white) / 1.026;
+        lastOut = brownData[i];
+        brownData[i] *= 2.9;
+      }
+      this.noiseBuffer = whiteBuffer;
+
+      // 1. Serene SaaS Ambient Pad
       const padFilter = ctx.createBiquadFilter();
       padFilter.type = 'lowpass';
       padFilter.frequency.value = 760;
@@ -51,8 +71,7 @@
       padFilter.connect(padGain);
       padGain.connect(bedBus);
 
-      const padBaseFreqs = [261.63, 329.63, 392.0, 587.33];
-      const padOscs = padBaseFreqs.map((f) => {
+      const padOscs = [261.63, 329.63, 392.0, 587.33].map((f) => {
         const osc = ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.value = f;
@@ -66,7 +85,7 @@
       shepardBus.gain.value = 0.0001;
       const shepardFilter = ctx.createBiquadFilter();
       shepardFilter.type = 'lowpass';
-      shepardFilter.frequency.value = 520;
+      shepardFilter.frequency.value = 500;
       shepardBus.connect(shepardFilter);
       shepardFilter.connect(bedBus);
 
@@ -83,7 +102,7 @@
         shepardVoices.push({ osc, gain: g, offset: i / 6 });
       }
 
-      // 3. Fluorescent Ballast Hum (60Hz + 120Hz)
+      // 3. Fluorescent Ballast Hum
       const humGain = ctx.createGain();
       humGain.gain.value = 0.0001;
       const humFilter = ctx.createBiquadFilter();
@@ -105,24 +124,23 @@
       humOsc2.connect(humFilter);
       humOsc2.start();
 
-      // 4. Subterranean Pit Drone (deep 28Hz-74Hz beating rumble & tritone tension)
+      // 4. Otherworld Industrial / Subterranean Pit Drone
       const droneFilter = ctx.createBiquadFilter();
       droneFilter.type = 'lowpass';
       droneFilter.frequency.value = 105;
-      droneFilter.Q.value = 2.8;
+      droneFilter.Q.value = 3.0;
 
       const droneGain = ctx.createGain();
       droneGain.gain.value = 0.0001;
       droneFilter.connect(droneGain);
       droneGain.connect(bedBus);
 
-      const droneFreqs = [29.14, 30.87, 43.65, 61.74, 65.41, 92.5];
-      droneFreqs.forEach((f, idx) => {
+      [29.14, 30.87, 43.65, 61.74, 65.41, 92.5].forEach((f, idx) => {
         const osc = ctx.createOscillator();
         osc.type = idx < 2 ? 'sine' : 'sawtooth';
         osc.frequency.value = f;
         const g = ctx.createGain();
-        g.gain.value = idx < 2 ? 0.52 : 0.11;
+        g.gain.value = idx < 2 ? 0.52 : 0.12;
         osc.connect(g);
         g.connect(droneFilter);
         osc.start();
@@ -132,25 +150,14 @@
       lfo.type = 'sine';
       lfo.frequency.value = 0.08;
       const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 44;
+      lfoGain.gain.value = 46;
       lfo.connect(lfoGain);
       lfoGain.connect(droneFilter.frequency);
       lfo.start();
 
-      // 5. Filtered Noise Buffer (empty hallway air + cold shallow breathing)
-      const bufferSize = ctx.sampleRate * 3;
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + 0.026 * white) / 1.026;
-        lastOut = output[i];
-        output[i] *= 2.9;
-      }
-
+      // 5. Empty Corridor Air & Cold Shallow Breathing
       const noiseSrc = ctx.createBufferSource();
-      noiseSrc.buffer = noiseBuffer;
+      noiseSrc.buffer = brownBuffer;
       noiseSrc.loop = true;
 
       const noiseFilter = ctx.createBiquadFilter();
@@ -165,9 +172,8 @@
       noiseGain.connect(bedBus);
       noiseSrc.start();
 
-      // Shallow breathing formant
       const breathSrc = ctx.createBufferSource();
-      breathSrc.buffer = noiseBuffer;
+      breathSrc.buffer = brownBuffer;
       breathSrc.loop = true;
 
       const breathFilter = ctx.createBiquadFilter();
@@ -225,10 +231,10 @@
 
       if (this.enabled) {
         this.nodes.master.gain.cancelScheduledValues(now);
-        this.nodes.master.gain.setTargetAtTime(0.74, now, 0.35);
+        this.nodes.master.gain.setTargetAtTime(0.75, now, 0.35);
         this.setDread(this.dread);
         this.scheduleHeartbeat();
-        this.scheduleKnocks();
+        this.scheduleFoley();
         this.startShepardLoop();
       } else {
         this.nodes.master.gain.cancelScheduledValues(now);
@@ -244,9 +250,9 @@
         clearTimeout(this.heartbeatTimer);
         this.heartbeatTimer = null;
       }
-      if (this.knockTimer) {
-        clearTimeout(this.knockTimer);
-        this.knockTimer = null;
+      if (this.foleyTimer) {
+        clearTimeout(this.foleyTimer);
+        this.foleyTimer = null;
       }
       if (this.shepardTimer) {
         clearInterval(this.shepardTimer);
@@ -258,17 +264,13 @@
       if (this.shepardTimer) clearInterval(this.shepardTimer);
       this.shepardTimer = setInterval(() => {
         if (!this.ctx || !this.enabled || !this.nodes.shepardVoices) return;
-        // Slowly glide continuously downward forever (endless descent illusion)
         const speed = 0.0022 + this.dread * 0.0038;
         this.shepardPhase = (this.shepardPhase + speed) % 1;
         const now = this.ctx.currentTime;
 
         this.nodes.shepardVoices.forEach((v) => {
-          // Position x goes 1 -> 0 continuously (descending pitch)
-          const x = (1 - ((this.shepardPhase + v.offset) % 1));
-          // Span 5 octaves from 36Hz to 1152Hz
+          const x = 1 - ((this.shepardPhase + v.offset) % 1);
           const freq = 36 * Math.pow(2, x * 5);
-          // Smooth bell curve centered around mid-low registers so wrap-around is invisible
           const bell = Math.sin(x * Math.PI);
           const amp = bell * bell * 0.14;
           v.osc.frequency.setTargetAtTime(freq, now, 0.08);
@@ -283,8 +285,11 @@
       if (!this.ctx || !this.enabled) return;
       const now = this.ctx.currentTime;
       this.nodes.bedBus.gain.cancelScheduledValues(now);
-      // Abrupt eerie vacuum drop when entering the final pit
       this.nodes.bedBus.gain.setTargetAtTime(active ? 0.0001 : 1.0, now, active ? 0.12 : 0.45);
+    }
+
+    resetSiren() {
+      this.sirenPlayed = false;
     }
 
     setDread(dread) {
@@ -294,7 +299,6 @@
       const now = this.ctx.currentTime;
       const d = this.dread;
 
-      // 1. Warm SaaS pad fades imperceptibly over 0.16 -> 0.54 with micro-detune
       const padFade = Math.max(0, 1 - Math.max(0, (d - 0.16) / 0.42));
       this.nodes.padGain.gain.setTargetAtTime(0.0001 + padFade * 0.075, now, 0.4);
       this.nodes.padFilter.frequency.setTargetAtTime(760 - d * 460, now, 0.4);
@@ -305,29 +309,263 @@
         osc.detune.setTargetAtTime(dir * detuneFactor * (0.3 + i * 0.22), now, 0.45);
       });
 
-      // 2. Shepard-tone endless descent swells smoothly from 0.28 -> 0.90
       const shepIntensity = Math.max(0, Math.min(1, (d - 0.28) / 0.52));
       this.nodes.shepardBus.gain.setTargetAtTime(0.0001 + shepIntensity * 0.26, now, 0.4);
 
-      // 3. Fluorescent hum peaks smoothly through middle acts
       const humBell = Math.sin(Math.min(1, Math.max(0, (d - 0.22) / 0.64)) * Math.PI);
       this.nodes.humGain.gain.setTargetAtTime(0.0001 + humBell * 0.036, now, 0.45);
 
-      // 4. Subterranean drone swells from 0.46 -> 0.94
       const droneIntensity = Math.max(0, (d - 0.46) / 0.48);
-      this.nodes.droneGain.gain.setTargetAtTime(0.0001 + Math.pow(droneIntensity, 1.8) * 0.42, now, 0.4);
-      this.nodes.droneFilter.frequency.setTargetAtTime(82 + droneIntensity * 310, now, 0.4);
+      this.nodes.droneGain.gain.setTargetAtTime(0.0001 + Math.pow(droneIntensity, 1.8) * 0.44, now, 0.4);
+      this.nodes.droneFilter.frequency.setTargetAtTime(82 + droneIntensity * 330, now, 0.4);
 
-      // 5. Room air + shallow cold breathing
       const noiseIntensity = Math.max(0, (d - 0.5) / 0.44);
-      this.nodes.noiseGain.gain.setTargetAtTime(0.0001 + noiseIntensity * 0.11, now, 0.4);
-      this.nodes.noiseFilter.frequency.setTargetAtTime(420 + noiseIntensity * 1300, now, 0.4);
+      this.nodes.noiseGain.gain.setTargetAtTime(0.0001 + noiseIntensity * 0.12, now, 0.4);
+      this.nodes.noiseFilter.frequency.setTargetAtTime(420 + noiseIntensity * 1350, now, 0.4);
 
       const breathIntensity = Math.max(0, (d - 0.66) / 0.28);
-      this.nodes.breathMaster.gain.setTargetAtTime(0.0001 + breathIntensity * 0.16, now, 0.45);
+      this.nodes.breathMaster.gain.setTargetAtTime(0.0001 + breathIntensity * 0.17, now, 0.45);
 
-      // 6. Vacuum silence right at the final pit (0.93+) before climax
+      // Crossing below the False Footer triggers a distant mournful Silent Hill industrial siren swell once
+      if (d >= 0.74 && !this.sirenPlayed) {
+        this.sirenPlayed = true;
+        this.playDistantOtherworldSiren();
+      }
+
       this.setVacuumSilence(d >= 0.935);
+    }
+
+    // =======================================================================
+    // SILENT HILL FOLEY & INDUSTRIAL HORROR CUES
+    // =======================================================================
+
+    connectWithPan(node, panVal) {
+      if (typeof this.ctx.createStereoPanner === 'function') {
+        const panner = this.ctx.createStereoPanner();
+        panner.pan.value = Math.max(-1, Math.min(1, panVal));
+        node.connect(panner);
+        panner.connect(this.nodes.master);
+        return panner;
+      }
+      node.connect(this.nodes.master);
+      return null;
+    }
+
+    // Distant mournful Silent Hill air-raid / subterranean horn
+    playDistantOtherworldSiren() {
+      if (!this.ctx || !this.enabled) return;
+      const now = this.ctx.currentTime;
+
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+
+      osc1.type = 'sawtooth';
+      osc2.type = 'triangle';
+
+      osc1.frequency.setValueAtTime(118, now);
+      osc1.frequency.linearRampToValueAtTime(196, now + 2.4);
+      osc1.frequency.linearRampToValueAtTime(188, now + 4.4);
+      osc1.frequency.exponentialRampToValueAtTime(92, now + 7.2);
+
+      osc2.frequency.setValueAtTime(118.9, now);
+      osc2.frequency.linearRampToValueAtTime(197.4, now + 2.4);
+      osc2.frequency.linearRampToValueAtTime(189.2, now + 4.4);
+      osc2.frequency.exponentialRampToValueAtTime(93, now + 7.2);
+
+      filter.type = 'lowpass';
+      filter.frequency.value = 390;
+      filter.Q.value = 3.2;
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.11, now + 2.2);
+      gain.gain.setValueAtTime(0.095, now + 4.3);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 7.4);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.nodes.bedBus);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 7.5);
+      osc2.stop(now + 7.5);
+    }
+
+    // Classic Silent Hill pocket-radio static crackle burst
+    playRadioStatic(duration = 0.65, volume = 0.14) {
+      if (!this.ctx || !this.enabled || !this.noiseBuffer) return;
+      const now = this.ctx.currentTime;
+
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      src.loop = true;
+
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.setValueAtTime(1650, now);
+      bp.frequency.linearRampToValueAtTime(2400, now + duration * 0.5);
+      bp.Q.value = 2.4;
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(volume, now + 0.04);
+      gain.gain.setValueAtTime(volume * 0.55, now + duration * 0.3);
+      gain.gain.linearRampToValueAtTime(volume * 0.9, now + duration * 0.62);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      src.connect(bp);
+      bp.connect(gain);
+      gain.connect(this.nodes.master);
+
+      src.start(now, Math.random() * 1.5);
+      src.stop(now + duration + 0.05);
+    }
+
+    // Rusted metal blade / iron pipe slowly scraping across concrete (panned!)
+    playMetalScrape(startPan = -0.75) {
+      if (!this.ctx || !this.enabled || !this.noiseBuffer) return;
+      const now = this.ctx.currentTime;
+      const dur = 1.6 + Math.random() * 0.8;
+
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      src.loop = true;
+
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.setValueAtTime(980 + Math.random() * 450, now);
+      bp.frequency.linearRampToValueAtTime(1750 + Math.random() * 400, now + dur * 0.7);
+      bp.Q.value = 14;
+
+      const ringOsc = this.ctx.createOscillator();
+      ringOsc.type = 'sawtooth';
+      ringOsc.frequency.setValueAtTime(420, now);
+      ringOsc.frequency.linearRampToValueAtTime(515, now + dur);
+
+      const ringGain = this.ctx.createGain();
+      ringGain.gain.value = 0.028;
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.11, now + 0.25);
+      gain.gain.setValueAtTime(0.085, now + dur * 0.72);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      src.connect(bp);
+      bp.connect(gain);
+      ringOsc.connect(ringGain);
+      ringGain.connect(gain);
+
+      const panner = this.connectWithPan(gain, startPan);
+      if (panner) {
+        panner.pan.linearRampToValueAtTime(startPan * -0.4, now + dur);
+      }
+
+      src.start(now, Math.random());
+      ringOsc.start(now);
+      src.stop(now + dur + 0.05);
+      ringOsc.stop(now + dur + 0.05);
+    }
+
+    // Visceral wet heavy dragging sound in the dark corridor
+    playWetDrag(panVal = 0.6) {
+      if (!this.ctx || !this.enabled || !this.noiseBuffer) return;
+      const now = this.ctx.currentTime;
+      const dur = 1.25;
+
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      src.loop = true;
+
+      const lp = this.ctx.createBiquadFilter();
+      lp.type = 'bandpass';
+      lp.frequency.setValueAtTime(260, now);
+      lp.frequency.exponentialRampToValueAtTime(640, now + 0.45);
+      lp.frequency.exponentialRampToValueAtTime(190, now + dur);
+      lp.Q.value = 4.2;
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.16, now + 0.14);
+      gain.gain.linearRampToValueAtTime(0.07, now + 0.55);
+      gain.gain.linearRampToValueAtTime(0.14, now + 0.85);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      src.connect(lp);
+      lp.connect(gain);
+      this.connectWithPan(gain, panVal);
+
+      src.start(now, Math.random());
+      src.stop(now + dur + 0.05);
+    }
+
+    // Distant reverberant iron pipe clank deep in Sub-Level 01
+    playPipeClank(panVal = -0.5) {
+      if (!this.ctx || !this.enabled) return;
+      const now = this.ctx.currentTime;
+      const freqs = [248, 412, 695, 1120];
+      freqs.forEach((f, idx) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(f, now);
+        osc.frequency.exponentialRampToValueAtTime(f * 0.96, now + 1.1);
+
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.linearRampToValueAtTime(0.075 / (idx + 1), now + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 1.2 - idx * 0.18);
+
+        osc.connect(g);
+        this.connectWithPan(g, panVal);
+        osc.start(now);
+        osc.stop(now + 1.25);
+      });
+    }
+
+    // Sharp cracking/shattering glass sound synced to climax screen fracture
+    playGlassCrack() {
+      if (!this.ctx || !this.enabled || !this.noiseBuffer) return;
+      const now = this.ctx.currentTime;
+
+      // Crisp fracture snap
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+
+      const hp = this.ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 1900;
+
+      const nGain = this.ctx.createGain();
+      nGain.gain.setValueAtTime(0.0001, now);
+      nGain.gain.linearRampToValueAtTime(0.46, now + 0.006);
+      nGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+      src.connect(hp);
+      hp.connect(nGain);
+      nGain.connect(this.nodes.master);
+      src.start(now);
+      src.stop(now + 0.26);
+
+      // High crystalline stress pings
+      [2680, 3920, 5140, 6720].forEach((f, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + i * 0.018);
+        osc.frequency.exponentialRampToValueAtTime(f * 0.88, now + 0.28 + i * 0.02);
+
+        g.gain.setValueAtTime(0.0001, now + i * 0.018);
+        g.gain.linearRampToValueAtTime(0.09, now + i * 0.018 + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.34 + i * 0.02);
+
+        osc.connect(g);
+        g.connect(this.nodes.master);
+        osc.start(now + i * 0.018);
+        osc.stop(now + 0.38 + i * 0.02);
+      });
     }
 
     scheduleHeartbeat() {
@@ -335,9 +573,9 @@
       if (!this.enabled) return;
 
       const d = this.dread;
-      if (d > 0.66 && !this.inVacuum) {
-        const intensity = Math.min(1, (d - 0.66) / 0.28);
-        this.playHeartbeatThump(0.06 + intensity * 0.3);
+      if (d > 0.64 && !this.inVacuum) {
+        const intensity = Math.min(1, (d - 0.64) / 0.3);
+        this.playHeartbeatThump(0.06 + intensity * 0.31);
         if (typeof this.onPulse === 'function') {
           this.onPulse(1);
           setTimeout(() => this.onPulse(0.45), 175);
@@ -351,17 +589,26 @@
       }
     }
 
-    scheduleKnocks() {
-      if (this.knockTimer) clearTimeout(this.knockTimer);
+    scheduleFoley() {
+      if (this.foleyTimer) clearTimeout(this.foleyTimer);
       if (!this.enabled) return;
 
-      const delay = 8500 + Math.random() * 10500;
-      this.knockTimer = setTimeout(() => {
-        if (this.enabled && this.dread > 0.62 && this.dread < 0.93) {
-          const pan = (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.random() * 0.35);
-          this.playMuffledKnockCluster(pan, 0.14 + (this.dread - 0.62) * 0.26);
+      const delay = 6200 + Math.random() * 8200;
+      this.foleyTimer = setTimeout(() => {
+        if (this.enabled && this.dread > 0.6 && this.dread < 0.93) {
+          const pan = (Math.random() < 0.5 ? -1 : 1) * (0.55 + Math.random() * 0.38);
+          const roll = Math.random();
+          if (this.dread > 0.74 && roll < 0.32) {
+            this.playMetalScrape(pan);
+          } else if (this.dread > 0.74 && roll < 0.58) {
+            this.playWetDrag(pan);
+          } else if (this.dread > 0.7 && roll < 0.76) {
+            this.playPipeClank(pan);
+          } else {
+            this.playMuffledKnockCluster(pan, 0.14 + (this.dread - 0.6) * 0.26);
+          }
         }
-        this.scheduleKnocks();
+        this.scheduleFoley();
       }, delay);
     }
 
@@ -388,15 +635,7 @@
 
         osc.connect(filter);
         filter.connect(gain);
-
-        if (typeof this.ctx.createStereoPanner === 'function') {
-          const panner = this.ctx.createStereoPanner();
-          panner.pan.value = panValue;
-          gain.connect(panner);
-          panner.connect(this.nodes.master);
-        } else {
-          gain.connect(this.nodes.master);
-        }
+        this.connectWithPan(gain, panValue);
 
         osc.start(now + offset);
         osc.stop(now + offset + 0.13);
@@ -460,7 +699,6 @@
       if (!this.ctx || !this.enabled) return;
       const now = this.ctx.currentTime;
 
-      // Deep subterranean impact
       const sub = this.ctx.createOscillator();
       const subGain = this.ctx.createGain();
       sub.type = 'sawtooth';
@@ -482,9 +720,7 @@
       sub.start(now);
       sub.stop(now + 3.7);
 
-      // Bowed-metal weeping microtonal cluster
-      const clusterFreqs = [554.37, 587.33, 830.61, 880.0, 1174.66, 1244.51];
-      clusterFreqs.forEach((f, idx) => {
+      [554.37, 587.33, 830.61, 880.0, 1174.66, 1244.51].forEach((f, idx) => {
         const osc = this.ctx.createOscillator();
         const filter = this.ctx.createBiquadFilter();
         const gain = this.ctx.createGain();

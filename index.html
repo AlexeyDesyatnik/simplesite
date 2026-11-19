@@ -12,7 +12,9 @@
 </head>
 <body>
   <!-- Continuous Atmospheric Overlays (0% invisible at top, seamlessly deepen pixel-by-pixel) -->
+  <canvas id="decay-canvas" aria-hidden="true"></canvas>
   <canvas id="eyes-canvas" aria-hidden="true"></canvas>
+  <div class="overlay-rust" aria-hidden="true"></div>
   <div class="overlay-hell-glow" aria-hidden="true"></div>
   <div class="overlay-vignette" aria-hidden="true"></div>
   <div class="overlay-grain" aria-hidden="true"></div>
@@ -586,72 +588,80 @@
         </div>
       </div>
 
-      <!-- The crack beneath the false bottom -->
-      <div class="sublevel-seam" aria-hidden="true">
+      <!-- The rusted crack beneath the false bottom (Silent Hill Otherworld entry) -->
+      <div class="sublevel-seam" id="sublevel-seam" aria-hidden="true">
         <span class="seam-line"></span>
-        <span class="seam-label">SUB-LEVEL 01 // DO NOT DESCEND</span>
+        <span class="seam-label">SUB-LEVEL 01 // OTHERWORLD</span>
         <span class="seam-line"></span>
       </div>
+
+      <!-- Viscous dark crimson seepage dripping below the false footer seam -->
+      <svg class="seam-drips" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,0 L1200,0 L1200,6 C1150,6 1138,34 1132,34 C1126,34 1122,8 1060,8 C1012,8 1004,68 998,68 C992,68 986,10 920,10 C870,10 862,42 856,42 C850,42 844,7 740,7 C690,7 680,96 673,96 C666,96 660,9 590,9 C540,9 532,54 526,54 C520,54 514,8 410,8 C355,8 346,78 340,78 C334,78 328,11 260,11 C215,11 208,38 202,38 C196,38 190,6 110,6 C78,6 72,58 66,58 C60,58 54,5 0,5 Z" fill="rgba(74, 8, 12, 0.72)" />
+      </svg>
     </section>
 
     <!-- =========================================================
-         ACT 6: BELOW THE FOOTER — DESCENT INTO HELL (76% - 91%)
-         Narrow claustrophobic subterranean corridor, ember underglow,
-         recovered Room 4B & Live CCTV, peripheral watching eyes.
+         ACT 6: BELOW THE FOOTER — SILENT HILL OTHERWORLD (76% - 91%)
+         Rusted corroded frames, dried-crimson seepage, ash motes,
+         Room 4B + Live CCTV Hallway + industrial foley.
          ========================================================= -->
     <section class="section horror-cctv-section" id="headquarters" data-act="6">
       <div class="container hell-container">
         <div class="section-header horror-header">
-          <span class="eyebrow mono-eyebrow">BELOW THE FOOTER // FLOOR 14</span>
-          <h2 class="section-title fractured-title" data-text="You didn't stop.">You didn't stop.</h2>
-          <p class="section-lead">Everyone sees the footer. Almost everyone keeps scrolling anyway.</p>
+          <span class="eyebrow mono-eyebrow">BELOW THE FOOTER // SUB-FLOOR 14</span>
+          <h2 class="section-title fractured-title" data-text="The paint is peeling off.">The paint is peeling off.</h2>
+          <p class="section-lead">Everyone sees the footer. Almost everyone steps through the rust anyway.</p>
         </div>
 
         <!-- Evidence Plate 01: Conference Room 4B -->
-        <figure class="evidence-plate" id="evidence-room4b">
+        <figure class="evidence-plate corroded-frame" id="evidence-room4b">
           <div class="evidence-media">
             <img src="assets/room-4b.jpg" alt="Dark desolate conference room with handprints dragged down the frosted glass" class="evidence-img" loading="lazy" />
+            <div class="otherworld-stain-overlay" aria-hidden="true"></div>
             <div class="evidence-overlay-tag">ARCHIVE 01 // ROOM 4B — 03:14 AM</div>
           </div>
           <figcaption class="evidence-caption">
-            <span class="caption-code">LOG:</span> The conference room has no windows and no handle on the inside.
-            Everyone who sits in the chair asks why the wall clock stopped at 3:14.
+            <span class="caption-code">INSPECTION LOG:</span> Rust and dark dried blood along the interior doorframe.
+            Sixteen vertical scratch marks dragged down the frosted glass from shoulder height to the stained carpet.
+            No exit handle exists on the inside.
           </figcaption>
         </figure>
 
         <!-- Live CCTV Feed: Hallway B -->
-        <div class="cctv-frame" id="cctv-frame">
+        <div class="cctv-frame corroded-frame" id="cctv-frame">
           <div class="cctv-viewport">
             <img src="assets/hallway-cctv.jpg" alt="Dark office hallway security camera feed with tall dark figure leaning from doorway" class="cctv-image" id="cctv-image" />
+            <div class="otherworld-stain-overlay" aria-hidden="true"></div>
             <div class="cctv-scan" aria-hidden="true"></div>
             <div class="cctv-hud">
               <div class="cctv-top">
-                <span class="cctv-live"><span class="live-blink"></span>CAM 04 // HALLWAY B</span>
+                <span class="cctv-live"><span class="live-blink"></span>CAM 04 // SUB-LEVEL HALLWAY B</span>
                 <span class="cctv-clock" id="cctv-clock">00:00:00.000</span>
               </div>
               <div class="cctv-reticle" id="cctv-reticle">
                 <span class="reticle-label" id="cctv-distance">MOTION DETECTED — 14.2m</span>
               </div>
               <div class="cctv-bottom">
-                <span>ELEVATOR: DOWN ONLY</span>
+                <span>RADIO INTERFERENCE: HIGH</span>
                 <span id="cctv-subject-status">SUBJECT: STILL READING</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Minimal, devastating psychological notes -->
+        <!-- Corroded Industrial Memos -->
         <div class="incident-logs">
-          <div class="log-entry">
-            <span class="log-code">NOTE // 01</span>
-            <p>IT DID NOT NEED TO FORCE YOU DOWN HERE. IT JUST MADE THE TOP LOOK FAMILIAR AND WAITED FOR YOUR CURIOSITY TO DO THE REST.</p>
+          <div class="log-entry corroded-log">
+            <span class="log-code">RECOVERED PLATE // 01</span>
+            <p>THE CLEAN WHITE INTERFACE IS ONLY PAINT OVER WET IRON. STAY LONG ENOUGH AND THE RUST ALWAYS BLEEDS THROUGH.</p>
           </div>
-          <div class="log-entry tilted-left">
-            <span class="log-code">NOTE // 02</span>
-            <p>IF YOU MOVE YOUR EYES TO THE DARK EDGES OF THE SCREEN, THEY WILL CLOSE BEFORE YOU CAN FOCUS ON THEM.</p>
+          <div class="log-entry corroded-log tilted-left">
+            <span class="log-code">RECOVERED PLATE // 02</span>
+            <p>WHEN THE STATIC CRACKLES OR METAL SCRAPES IN THE DARK, SOMETHING ON SUB-FLOOR 14 HAS MOVED CLOSER TO THE GLASS.</p>
           </div>
-          <div class="log-entry tilted-right">
-            <span class="log-code">NOTE // 03</span>
+          <div class="log-entry corroded-log tilted-right">
+            <span class="log-code">RECOVERED PLATE // 03</span>
             <p id="personal-log-line">YOU HAVE BEEN HERE FOR 0 SECONDS. THE SILENCE AT THE BOTTOM IS NOT EMPTY.</p>
           </div>
         </div>
@@ -720,6 +730,32 @@
         <div class="climax-hud-line red">IT HAS YOUR SEAT NOW</div>
       </div>
     </div>
+
+    <!-- Shattered Screen-Glass Fracture Web (cracks outward from entity's palm) -->
+    <svg class="climax-crack-svg" id="climax-crack-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g class="crack-group" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Radial primary glass fractures originating near palm impact (1020, 520) -->
+        <path class="crack-main" d="M1020,520 L950,455 L860,410 L720,315 L540,210 L260,65 L40,-20" />
+        <path class="crack-main" d="M1020,520 L1068,430 L1120,335 L1210,195 L1335,45 L1420,-30" />
+        <path class="crack-main" d="M1020,520 L1145,495 L1290,468 L1460,445 L1640,420" />
+        <path class="crack-main" d="M1020,520 L1110,605 L1225,705 L1375,830 L1495,930" />
+        <path class="crack-main" d="M1020,520 L975,635 L925,750 L875,920" />
+        <path class="crack-main" d="M1020,520 L895,555 L745,600 L565,670 L320,765 L60,885" />
+        <path class="crack-main" d="M1020,520 L915,492 L765,465 L540,445 L220,425 L-40,410" />
+        <path class="crack-main" d="M1020,520 L1012,390 L1002,240 L995,80 L988,-30" />
+        <!-- Secondary jagged forks & concentric spiderweb stress rings -->
+        <path class="crack-sub" d="M950,455 L920,370 L880,275" />
+        <path class="crack-sub" d="M860,410 L820,485 L775,545" />
+        <path class="crack-sub" d="M1068,430 L1155,415 L1265,375" />
+        <path class="crack-sub" d="M1145,495 L1205,565 L1295,625" />
+        <path class="crack-sub" d="M895,555 L865,645 L825,735" />
+        <path class="crack-sub" d="M720,315 L695,410 L655,465" />
+        <path class="crack-sub" d="M950,455 L1012,438 L1068,430 L1105,492 L1085,575 L985,600 L910,550 Z" />
+        <path class="crack-sub" d="M860,410 L998,350 L1120,335 L1215,478 L1165,650 L945,705 L780,585 L810,468 Z" />
+      </g>
+      <!-- Crimson shadow bleed around center impact -->
+      <circle cx="1020" cy="520" r="24" fill="rgba(120, 10, 14, 0.35)" />
+    </svg>
 
     <!-- Bleak psychological twist aftermath -->
     <div class="climax-aftermath" id="climax-aftermath">
