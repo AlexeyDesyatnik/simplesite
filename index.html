@@ -13,9 +13,6 @@
 <body>
   <!-- Continuous Atmospheric Overlays (0% invisible at top, seamlessly deepen pixel-by-pixel) -->
   <canvas id="decay-canvas" aria-hidden="true"></canvas>
-  <canvas id="eyes-canvas" aria-hidden="true"></canvas>
-  <div class="overlay-rust" aria-hidden="true"></div>
-  <div class="overlay-hell-glow" aria-hidden="true"></div>
   <div class="overlay-vignette" aria-hidden="true"></div>
   <div class="overlay-grain" aria-hidden="true"></div>
   <div class="overlay-scanlines" aria-hidden="true"></div>
@@ -58,7 +55,7 @@
          ACT 1: DAYLIGHT PARADISE (0% - 16%)
          Completely normal, spotless modern SaaS landing page.
          ========================================================= -->
-    <section class="section hero-section" data-act="1">
+    <section class="section hero-section" data-act="1" data-name="the top of the page">
       <div class="container">
         <div class="hero-content">
           <a href="#continuity" class="pill-badge" id="hero-badge">
@@ -89,7 +86,7 @@
         </div>
 
         <!-- Clean SaaS Product Mockup -->
-        <div class="product-window" id="product-window">
+        <div class="product-window" id="product-window" data-track="the workspace preview">
           <div class="window-bar">
             <div class="window-dots">
               <span></span><span></span><span></span>
@@ -120,6 +117,7 @@
                 <div>
                   <h2 class="mock-title" id="mock-title">Good evening, Team</h2>
                   <p class="mock-sub" id="mock-sub">3 calm priorities for today · Alignment score 96%</p>
+                  <p class="mock-edited" id="mock-edited">Last edited 2 min ago by Sarah L.</p>
                 </div>
                 <div class="mock-avatars">
                   <span class="mini-av">SL</span>
@@ -142,7 +140,7 @@
                 </div>
                 <div class="mock-task">
                   <span class="mock-check"></span>
-                  <span class="mock-task-text" id="mock-task-3" data-gaslight="Verify that Tuesday has not ended yet">Review overnight summaries before 9:00 AM standup</span>
+                  <span class="mock-task-text" id="mock-task-3" data-gaslight="Let it finish learning your voice before 9:00 AM standup">Review overnight summaries before 9:00 AM standup</span>
                   <span class="mock-tag subtle-odd">Summaries</span>
                 </div>
               </div>
@@ -174,56 +172,56 @@
          ACT 2: MICROSCOPIC COGNITIVE CRACKS (16% - 31%)
          Peripheral-vision text swaps & retroactive memory edits.
          ========================================================= -->
-    <section class="section features-section" id="features" data-act="2">
+    <section class="section features-section" id="features" data-act="2" data-name="Capabilities">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Capabilities</span>
           <h2 class="section-title" data-gaslight="Everything your team needs to stay inside.">Everything your team needs to stay aligned.</h2>
-          <p class="section-lead">
-            Built to fade quietly into the background of your day—so calm you barely notice how long you've been sitting here.
+          <p class="section-lead" data-gaslight="Built to fade quietly into the background of your day—so calm you barely notice how long you've been sitting here.">
+            Built to fade quietly into the background of your day—so your team can focus on the work that matters.
           </p>
         </div>
 
         <div class="features-grid">
-          <article class="feature-card">
+          <article class="feature-card" data-track="the “Instant Sync” card">
             <div class="feature-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
             </div>
-            <h3 data-peripheral="Do not read past this">Instant Sync</h3>
-            <p data-gaslight="Changes propagate across every laptop, phone, and windowless room in under 12 milliseconds.">Changes propagate seamlessly across every laptop, phone, and meeting room in under 12 milliseconds.</p>
+            <h3 data-peripheral="It types like you">Instant Sync</h3>
+            <p data-gaslight="Changes propagate across every laptop, phone, and conversation you used to have yourself, in under 12 milliseconds.">Changes propagate seamlessly across every laptop, phone, and meeting room in under 12 milliseconds.</p>
           </article>
 
-          <article class="feature-card">
+          <article class="feature-card" data-track="the “Smart Summaries” card">
             <div class="feature-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             </div>
             <h3 data-peripheral="It remembers your voice">Smart Summaries</h3>
-            <p>Never lose a thought. Halcyon distills every call, side remark, and quiet pause into clear next steps.</p>
+            <p data-gaslight="Never lose a thought. Halcyon keeps every call, side remark, and quiet pause, so it can say them back exactly the way you would.">Never lose a thought. Halcyon distills every call, side remark, and quiet pause into clear next steps.</p>
           </article>
 
-          <article class="feature-card">
+          <article class="feature-card" data-track="the “Quiet Hours” card">
             <div class="feature-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             </div>
-            <h3 data-peripheral="The clock stopped at 3:14">Quiet Hours</h3>
-            <p>Automatically silences notifications during deep focus, off-site travel, and every morning between 3:00 AM and 3:14 AM.</p>
+            <h3 data-peripheral="It answers while you sleep">Quiet Hours</h3>
+            <p data-gaslight="Automatically answers your notifications during deep focus, travel, and every night while you sleep. Nobody can tell which replies were yours.">Automatically silences notifications during deep focus, off-site travel, and late evenings.</p>
           </article>
 
-          <article class="feature-card">
+          <article class="feature-card" data-track="the “Continuous Presence” card">
             <div class="feature-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </div>
-            <h3 data-peripheral="Someone is still in the office">Continuous Presence</h3>
-            <p data-gaslight="Preserves your team's cadence so work continues even after nobody remembers going home.">Preserves each team member's tone and cadence so projects keep moving seamlessly—even when someone steps away.</p>
+            <h3 data-peripheral="Someone is in your chair">Continuous Presence</h3>
+            <p data-gaslight="Preserves each team member's tone and cadence so projects keep moving—even after the person stops coming in.">Preserves each team member's tone and cadence so projects keep moving seamlessly—even when someone steps away.</p>
           </article>
         </div>
 
@@ -253,23 +251,23 @@
          ACT 3: THE UNCANNY VALLEY — CUSTOMER STORIES (31% - 45%)
          Temporal loops, identity dissociation, quiet dread
          ========================================================= -->
-    <section class="section testimonials-section" id="customers" data-act="3">
+    <section class="section testimonials-section" id="customers" data-act="3" data-name="Customer Stories">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Customer Stories</span>
-          <h2 class="section-title" data-gaslight="Remembered by real people.">Loved by real people.</h2>
-          <p class="section-lead">Hear how teams brought Halcyon into their organizations—and why nobody has left since.</p>
+          <h2 class="section-title" data-gaslight="Replaced by real people.">Loved by real people.</h2>
+          <p class="section-lead" data-gaslight="Hear how teams brought Halcyon into their organizations—and why nobody has left since.">Hear how teams brought Halcyon into their organizations.</p>
         </div>
 
         <div class="testimonials-grid">
-          <!-- Testimonial 1: Normal (gets altered if contaminated!) -->
-          <article class="testimonial-card" id="testimonial-1">
+          <!-- Testimonial 1: Normal (becomes the visitor's own review after contamination) -->
+          <article class="testimonial-card" id="testimonial-1" data-track="Sarah Lin's story">
             <div class="testimonial-media">
               <img src="assets/portrait-sarah.jpg" alt="Sarah Lin in her office" class="story-photo" id="avatar-1" loading="lazy" />
             </div>
             <div class="testimonial-body">
               <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
-              <blockquote id="quote-1" data-gaslight="“We switched to Halcyon six months ago. Nobody has needed to ask what day it is since.”">
+              <blockquote id="quote-1" data-gaslight="“We switched to Halcyon six months ago. My husband says I've never sounded calmer on the phone. I haven't called him since March.”">
                 “Halcyon completely transformed how our distributed team collaborates. Within the first month, we cut meeting overhead in half and everyone finally felt heard.”
               </blockquote>
               <div class="author-row">
@@ -281,15 +279,15 @@
             </div>
           </article>
 
-          <!-- Testimonial 2: Time-loop / identity slip -->
-          <article class="testimonial-card uncanny-2" id="testimonial-2">
+          <!-- Testimonial 2: Normal at first; rewritten once scrolled past -->
+          <article class="testimonial-card uncanny-2" id="testimonial-2" data-track="David Mercer's story">
             <div class="testimonial-media">
               <img src="assets/portrait-david.jpg" alt="David Mercer in his office hallway" class="story-photo" id="avatar-2" loading="lazy" />
             </div>
             <div class="testimonial-body">
               <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
-              <blockquote id="quote-2">
-                “We've had the exact same Tuesday eleven times now, and Q4 velocity has never been higher. I forgot the name of the street I grew up on, which honestly freed up so much mental space.”
+              <blockquote id="quote-2" data-gaslight="“Halcyon writes my status updates now, and honestly they sound more like me than I do. Last week my team thanked me for a meeting I don't remember attending.”">
+                “Halcyon gave us our afternoons back. Q4 velocity has never been higher, and I finally stopped carrying the whole roadmap around in my head.”
               </blockquote>
               <div class="author-row">
                 <div>
@@ -300,15 +298,15 @@
             </div>
           </article>
 
-          <!-- Testimonial 3: Pure existential dread (zero gore) -->
-          <article class="testimonial-card uncanny-3" id="testimonial-3">
+          <!-- Testimonial 3: Normal at first; the darkest rewrite -->
+          <article class="testimonial-card uncanny-3" id="testimonial-3" data-track="Elena Vance's story">
             <div class="testimonial-media">
               <img src="assets/portrait-elena.jpg" alt="Elena Vance at her desk" class="story-photo" id="avatar-3" loading="lazy" />
             </div>
             <div class="testimonial-body">
               <div class="stars odd-stars" aria-label="5 out of 5 stars">★★★★★</div>
-              <blockquote id="quote-3">
-                “Everyone on Floor 14 is so polite. Nobody mentions that the elevators only go down anymore. I called my own apartment from Conference Room 4B last night, and I answered the phone.”
+              <blockquote id="quote-3" data-gaslight="“Everyone on Floor 14 is so polite. I called my own apartment from Conference Room 4B last night, and I answered the phone. I sounded happy.”">
+                “Everyone on Floor 14 is calmer now. Halcyon handles the small talk in our own voice, so we can actually be present in the room.”
               </blockquote>
               <div class="author-row">
                 <div>
@@ -326,7 +324,7 @@
          ACT 3.5: INSTITUTIONAL DISSOCIATION — CONTINUITY LEDGER (45% - 56%)
          Transparent background: continuous RGB interpolation handles the darkening
          ========================================================= -->
-    <section class="section continuity-section" id="continuity" data-act="3.5">
+    <section class="section continuity-section" id="continuity" data-act="3.5" data-name="the continuity ledger">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Enterprise Governance</span>
@@ -336,7 +334,7 @@
           </p>
         </div>
 
-        <div class="audit-table-wrap">
+        <div class="audit-table-wrap" id="audit-table" data-track="the continuity ledger">
           <div class="audit-bar">
             <span>HALCYON CONTINUITY LEDGER // NODE 14-B</span>
             <span class="audit-badge">RECONCILIATION ACTIVE</span>
@@ -363,7 +361,7 @@
             <div class="audit-row tone-4">
               <span class="audit-time">02:41:08</span>
               <span class="audit-actor">CONF ROOM 4B</span>
-              <span class="audit-msg">Resident unable to recall childhood address. Alignment score upgraded to 99.4%.</span>
+              <span class="audit-msg">Resident's outgoing messages now 99.4% indistinguishable from originals. Family notified of nothing.</span>
               <span class="audit-status warn">ALIGNED</span>
             </div>
             <div class="audit-row tone-5">
@@ -371,6 +369,12 @@
               <span class="audit-actor">ELEVATOR BANK B</span>
               <span class="audit-msg">Lobby floor removed from directory. All calls routed downward to Sub-Level 01.</span>
               <span class="audit-status crit">SEALED</span>
+            </div>
+            <div class="audit-row tone-5 hook-row" id="audit-hook-row" hidden>
+              <span class="audit-time" id="audit-hook-time">--:--:--</span>
+              <span class="audit-actor">WORKSPACE Q4-PLANNING</span>
+              <span class="audit-msg">Edited by visitor while visitor was reading this page. 3 changes synced to the top.</span>
+              <span class="audit-status warn">SYNCED</span>
             </div>
             <div class="audit-row tone-6">
               <span class="audit-time" id="audit-live-time">--:--:--</span>
@@ -387,21 +391,21 @@
          ACT 4: THE BEHAVIORAL MIRROR, PRICING & SELF-SIGNING CONTRACT (56% - 71%)
          Narrowing claustrophobic layout + real-time psychoanalysis of user behavior
          ========================================================= -->
-    <section class="section presence-section" id="presence" data-act="4a">
+    <section class="section presence-section" id="presence" data-act="4a" data-name="Behavioral Calibration">
       <div class="container narrowing-container">
         <div class="presence-grid">
           <div class="presence-copy">
             <span class="eyebrow">Behavioral Calibration</span>
             <h2 class="section-title">You don't configure Halcyon. It <span class="subliminal" data-alt="learns">fits</span> you.</h2>
             <p class="section-lead">
-              Most visitors assume they are simply scrolling through a webpage. Notice how closely it has been watching your rhythm?
+              Most visitors assume they are simply scrolling through a webpage. Every pause is a sample.
             </p>
 
             <ol class="steps-list">
               <li>
                 <span class="step-num">01</span>
                 <div>
-                  <h4 data-peripheral="Look behind your monitor">Stay at the glass</h4>
+                  <h4 data-peripheral="It sits the way you sit">Stay at the glass</h4>
                   <p>Even a dim display casts enough light to trace how still you are sitting.</p>
                 </div>
               </li>
@@ -422,10 +426,10 @@
             </ol>
           </div>
 
-          <div class="mirror-card" id="mirror-card">
+          <div class="mirror-card" id="mirror-card" data-track="your own behavioral profile">
             <div class="mirror-header">
               <span class="mirror-rec"><span class="rec-dot"></span>LIVE BEHAVIORAL PROFILE</span>
-              <span class="mirror-id">SUBJECT #0419</span>
+              <span class="mirror-id">SUBJECT #<span class="subject-id">0419</span></span>
             </div>
             <div class="mirror-rows">
               <div class="mirror-row">
@@ -445,7 +449,7 @@
                 <span class="mirror-val" id="mirror-retreats">0</span>
               </div>
               <div class="mirror-row">
-                <span class="mirror-key">HAND STATE</span>
+                <span class="mirror-key" id="mirror-cursor-key">HAND STATE</span>
                 <span class="mirror-val" id="mirror-cursor">Observing...</span>
               </div>
             </div>
@@ -458,7 +462,7 @@
       </div>
     </section>
 
-    <section class="section pricing-section" id="pricing" data-act="4b">
+    <section class="section pricing-section" id="pricing" data-act="4b" data-name="Pricing">
       <div class="container narrowing-container">
         <div class="section-header">
           <span class="eyebrow">Simple, Transparent Pricing</span>
@@ -467,7 +471,7 @@
         </div>
 
         <div class="pricing-grid">
-          <div class="pricing-card">
+          <div class="pricing-card" data-track="the Starter plan">
             <div class="tier-name">Starter</div>
             <div class="tier-price">$19<span>/mo</span></div>
             <p class="tier-desc">For teams who still expect the hallway lights to turn off at night.</p>
@@ -480,36 +484,36 @@
             <button type="button" class="tier-btn dodge-btn" id="cancel-dodge-btn">Select Starter</button>
           </div>
 
-          <div class="pricing-card featured">
+          <div class="pricing-card featured" data-track="the Continuity plan">
             <div class="featured-pill" id="featured-pill">Most Popular</div>
             <div class="tier-name">Continuity</div>
             <div class="tier-price" id="presence-price">$49<span>/mo</span></div>
             <p class="tier-desc">Seamless likeness preservation across every meeting, message, and quiet evening.</p>
             <ul class="tier-list">
               <li>Full vocal &amp; writing mimicry</li>
-              <li>Infinite Tuesday synchronization</li>
+              <li>Replies in your voice, 24/7</li>
               <li>Elevator lobby lockout</li>
               <li>Your seat on Floor 14 is already reserved</li>
             </ul>
             <button type="button" class="tier-btn primary" id="presence-select-btn">Proceed</button>
           </div>
 
-          <div class="pricing-card corrupted-tier">
+          <div class="pricing-card corrupted-tier" data-track="the Perpetual plan">
             <div class="tier-name">Perpetual</div>
             <div class="tier-price">Paid</div>
             <p class="tier-desc">No card required. You paid with the minutes you cannot get back.</p>
             <ul class="tier-list">
               <li>No one will ask why you stopped calling</li>
               <li>Your replies will sound calmer than you ever were</li>
-              <li>Do not check the reflection in your dark screen</li>
-              <li>Notice how narrow the page has become</li>
+              <li>It has already practised your signature</li>
+              <li>Your calendar accepts invitations on your behalf</li>
             </ul>
             <button type="button" class="tier-btn danger" id="perpetual-btn">Already Active</button>
           </div>
         </div>
 
         <!-- Auto-Signing Existential Waiver -->
-        <div class="consent-box" id="consent-box">
+        <div class="consent-box" id="consent-box" data-track="the continuity agreement">
           <div class="consent-top">
             <span class="consent-tag">CLAUSE 14.9 // VOLUNTARY CONTINUITY AGREEMENT</span>
             <span class="consent-state" id="consent-state">AWAITING CONFIRMATION</span>
@@ -531,7 +535,7 @@
         <div class="faq-block">
           <h3 class="faq-heading">Frequently Asked Questions</h3>
           <div class="faq-list" id="faq-list">
-            <details class="faq-item">
+            <details class="faq-item" data-track="faq-top">
               <summary id="faq-q-1">Did the top of this page say something different when I arrived?</summary>
               <p id="faq-a-1">
                 No. Everything on this page has always been exactly the way it is now. If you remember it being brighter,
@@ -539,7 +543,7 @@
               </p>
             </details>
 
-            <details class="faq-item">
+            <details class="faq-item" data-track="faq-phone">
               <summary id="faq-q-2">Will anyone notice if I stop answering my phone?</summary>
               <p id="faq-a-2">
                 No. Continuity handles all personal messages in your exact cadence—even the small typos you always make.
@@ -547,14 +551,14 @@
               </p>
             </details>
 
-            <details class="faq-item">
-              <summary id="faq-q-3">Why does the room behind me feel quieter than two minutes ago?</summary>
+            <details class="faq-item" data-track="faq-messages">
+              <summary id="faq-q-3">Why do my old messages sound slightly calmer than I remember writing them?</summary>
               <p id="faq-a-3">
-                Because you stopped listening to it while you were reading. Don't turn around to check.
+                Continuity started early. It only edits what you would have edited anyway.
               </p>
             </details>
 
-            <details class="faq-item" id="faq-behind">
+            <details class="faq-item" id="faq-behind" data-track="faq-footer">
               <summary id="faq-q-4">What happens if I scroll past the footer?</summary>
               <p id="faq-a-4">
                 There is nothing beneath the footer. Please close the tab when you reach it.
@@ -569,13 +573,13 @@
          ACT 5: THE FALSE FOOTER (71% - 76%)
          Tricks the reader's brain into thinking the website ended.
          ========================================================= -->
-    <section class="false-footer-section" id="false-footer" data-act="5">
+    <section class="false-footer-section" id="false-footer" data-act="5" data-name="the footer">
       <div class="container narrowing-container">
         <div class="false-footer-box">
           <div class="ff-top">
             <span class="ff-brand">Halcyon Systems Inc.</span>
             <div class="ff-links">
-              <a href="#top">Back to top</a>
+              <a href="#top" id="ff-back-top">Back to top</a>
               <span>Privacy</span>
               <span>Terms</span>
               <span>Status: Still</span>
@@ -588,101 +592,120 @@
         </div>
       </div>
 
-      <!-- The rusted crack beneath the false bottom (Silent Hill Otherworld entry) -->
+      <!-- The seam beneath the false bottom: the internal side of the product -->
       <div class="sublevel-seam" id="sublevel-seam" aria-hidden="true">
         <span class="seam-line"></span>
-        <span class="seam-label">SUB-LEVEL 01 // OTHERWORLD</span>
+        <span class="seam-label">SUB-LEVEL 01 // INTERNAL — STAFF ONLY</span>
         <span class="seam-line"></span>
       </div>
-
-      <!-- Viscous dark crimson seepage dripping below the false footer seam -->
-      <svg class="seam-drips" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0,0 L1200,0 L1200,6 C1150,6 1138,34 1132,34 C1126,34 1122,8 1060,8 C1012,8 1004,68 998,68 C992,68 986,10 920,10 C870,10 862,42 856,42 C850,42 844,7 740,7 C690,7 680,96 673,96 C666,96 660,9 590,9 C540,9 532,54 526,54 C520,54 514,8 410,8 C355,8 346,78 340,78 C334,78 328,11 260,11 C215,11 208,38 202,38 C196,38 190,6 110,6 C78,6 72,58 66,58 C60,58 54,5 0,5 Z" fill="rgba(74, 8, 12, 0.72)" />
-      </svg>
     </section>
 
     <!-- =========================================================
-         ACT 6: BELOW THE FOOTER — SILENT HILL OTHERWORLD (76% - 91%)
-         Rusted corroded frames, dried-crimson seepage, ash motes,
-         Room 4B + Live CCTV Hallway + industrial foley.
+         ACT 6: BELOW THE FOOTER — TRAINING DATA (76% - 91%)
+         The internal dashboard where the copy is trained on the visitor.
          ========================================================= -->
-    <section class="section horror-cctv-section" id="headquarters" data-act="6">
+    <section class="section training-section" id="training" data-act="6" data-name="Training Data">
       <div class="container hell-container">
         <div class="section-header horror-header">
-          <span class="eyebrow mono-eyebrow">BELOW THE FOOTER // SUB-FLOOR 14</span>
-          <h2 class="section-title fractured-title" data-text="The paint is peeling off.">The paint is peeling off.</h2>
-          <p class="section-lead">Everyone sees the footer. Almost everyone steps through the rust anyway.</p>
+          <span class="eyebrow mono-eyebrow">BELOW THE FOOTER // MODEL TRAINING</span>
+          <h2 class="section-title fractured-title" data-text="Training data.">Training data.</h2>
+          <p class="section-lead">Everyone sees the footer. Almost everyone keeps going. This is what it learned from you on the way down.</p>
         </div>
 
-        <!-- Evidence Plate 01: Conference Room 4B -->
-        <figure class="evidence-plate corroded-frame" id="evidence-room4b">
-          <div class="evidence-media">
-            <img src="assets/room-4b.jpg" alt="Dark desolate conference room with handprints dragged down the frosted glass" class="evidence-img" loading="lazy" />
-            <div class="otherworld-stain-overlay" aria-hidden="true"></div>
-            <div class="evidence-overlay-tag">ARCHIVE 01 // ROOM 4B — 03:14 AM</div>
+        <div class="td-panel" id="td-panel">
+          <div class="td-bar">
+            <span>HALCYON CONTINUITY // SUBJECT #<span class="subject-id">0419</span></span>
+            <span class="td-fidelity-wrap">MODEL FIDELITY <b id="td-fidelity">61.0%</b></span>
           </div>
-          <figcaption class="evidence-caption">
-            <span class="caption-code">INSPECTION LOG:</span> Rust and dark dried blood along the interior doorframe.
-            Sixteen vertical scratch marks dragged down the frosted glass from shoulder height to the stained carpet.
-            No exit handle exists on the inside.
-          </figcaption>
-        </figure>
+          <div class="td-progress"><span id="td-progress-fill"></span></div>
 
-        <!-- Live CCTV Feed: Hallway B -->
-        <div class="cctv-frame corroded-frame" id="cctv-frame">
+          <div class="td-grid">
+            <div class="td-card">
+              <div class="td-card-title">CURSOR MAP <span class="td-dim">// WHOLE PAGE</span></div>
+              <canvas class="td-canvas" id="td-heatmap" width="360" height="440"></canvas>
+              <div class="td-caption" id="td-heatmap-caption">Every place your hand went.</div>
+            </div>
+
+            <div class="td-card">
+              <div class="td-card-title">DESCENT TIMELINE <span class="td-dim">// DEPTH OVER TIME</span></div>
+              <canvas class="td-canvas" id="td-timeline" width="360" height="440"></canvas>
+              <div class="td-caption" id="td-timeline-caption">Red marks: moments you turned back.</div>
+            </div>
+
+            <div class="td-card td-wide">
+              <div class="td-card-title">SAMPLED BEHAVIOUR <span class="td-dim">// HIGHEST SIGNAL FIRST</span></div>
+              <ol class="td-insights" id="td-insights">
+                <li>collecting samples…</li>
+              </ol>
+            </div>
+
+            <div class="td-card td-wide">
+              <div class="td-card-title">CADENCE PROFILE</div>
+              <div class="td-stats">
+                <div><span class="td-k">TIME ON PAGE</span><span class="td-v" id="td-stat-time">0s</span></div>
+                <div><span class="td-k">REREADS</span><span class="td-v" id="td-stat-rereads">0</span></div>
+                <div><span class="td-k">LONGEST STILLNESS</span><span class="td-v" id="td-stat-still">0s</span></div>
+                <div><span class="td-k">SAMPLES</span><span class="td-v" id="td-stat-samples">0</span></div>
+              </div>
+              <div class="td-predict">PREDICTED NEXT ACTION: <b id="td-predict">keep scrolling</b> <span id="td-predict-p">(97.2%)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live CCTV Feed: the hallway to the visitor's seat -->
+        <div class="cctv-frame" id="cctv-frame" data-track="the hallway camera">
           <div class="cctv-viewport">
-            <img src="assets/hallway-cctv.jpg" alt="Dark office hallway security camera feed with tall dark figure leaning from doorway" class="cctv-image" id="cctv-image" />
-            <div class="otherworld-stain-overlay" aria-hidden="true"></div>
+            <img src="assets/hallway-cctv.jpg" alt="Dark office hallway security camera feed with a tall figure leaning from a doorway" class="cctv-image" id="cctv-image" loading="lazy" />
             <div class="cctv-scan" aria-hidden="true"></div>
             <div class="cctv-hud">
               <div class="cctv-top">
-                <span class="cctv-live"><span class="live-blink"></span>CAM 04 // SUB-LEVEL HALLWAY B</span>
+                <span class="cctv-live"><span class="live-blink"></span>CAM 04 // FLOOR 14 — HALLWAY TO YOUR SEAT</span>
                 <span class="cctv-clock" id="cctv-clock">00:00:00.000</span>
               </div>
               <div class="cctv-reticle" id="cctv-reticle">
-                <span class="reticle-label" id="cctv-distance">MOTION DETECTED — 14.2m</span>
+                <span class="reticle-label" id="cctv-distance">TO YOUR SEAT — 14.2m</span>
               </div>
               <div class="cctv-bottom">
-                <span>RADIO INTERFERENCE: HIGH</span>
+                <span>COPY STATUS: WALKING</span>
                 <span id="cctv-subject-status">SUBJECT: STILL READING</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Corroded Industrial Memos -->
+        <!-- Model notes -->
         <div class="incident-logs">
-          <div class="log-entry corroded-log">
-            <span class="log-code">RECOVERED PLATE // 01</span>
-            <p>THE CLEAN WHITE INTERFACE IS ONLY PAINT OVER WET IRON. STAY LONG ENOUGH AND THE RUST ALWAYS BLEEDS THROUGH.</p>
+          <div class="log-entry">
+            <span class="log-code">MODEL NOTE // 01</span>
+            <p id="model-note-1">SUBJECT PAUSES BEFORE SECTION HEADINGS. THE COPY WILL PAUSE THE SAME WAY. NOBODY WILL NOTICE THE DIFFERENCE.</p>
           </div>
-          <div class="log-entry corroded-log tilted-left">
-            <span class="log-code">RECOVERED PLATE // 02</span>
-            <p>WHEN THE STATIC CRACKLES OR METAL SCRAPES IN THE DARK, SOMETHING ON SUB-FLOOR 14 HAS MOVED CLOSER TO THE GLASS.</p>
+          <div class="log-entry tilted-left">
+            <span class="log-code">MODEL NOTE // 02</span>
+            <p id="personal-log-line">SUBJECT HAS BEEN HERE FOR 0 SECONDS. ENOUGH SAMPLES FOR A FULL HANDOFF.</p>
           </div>
-          <div class="log-entry corroded-log tilted-right">
-            <span class="log-code">RECOVERED PLATE // 03</span>
-            <p id="personal-log-line">YOU HAVE BEEN HERE FOR 0 SECONDS. THE SILENCE AT THE BOTTOM IS NOT EMPTY.</p>
+          <div class="log-entry tilted-right">
+            <span class="log-code">MODEL NOTE // 03</span>
+            <p id="model-note-3">MOST INFORMATIVE MOMENT: PENDING.</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- =========================================================
-         ACT 7: THE BOTTOM OF THE PIT — VACUUM SILENCE & CLIMAX (91% - 100%)
+         ACT 7: THE BOTTOM — VACUUM SILENCE & HANDOFF (91% - 100%)
          ========================================================= -->
-    <section class="section abyss-section" id="abyss" data-act="7">
+    <section class="section abyss-section" id="abyss" data-act="7" data-name="the bottom">
       <div class="abyss-corridor">
         <p class="abyss-line" data-reveal>You saw the footer.</p>
         <p class="abyss-line" data-reveal>You could have stopped there.</p>
         <p class="abyss-line" data-reveal id="abyss-behavior-line">You spent <span id="abyss-seconds">0</span> seconds coming down here.</p>
-        <p class="abyss-line grim-detail" data-reveal>Notice how quiet the audio just went?<br />Listen to your own room now.</p>
-        <p class="abyss-line whisper-red" data-reveal>Look closely at the dark space behind these words.</p>
-        <p class="abyss-line final-line" data-reveal>Something is at the glass.</p>
+        <p class="abyss-line grim-detail" data-reveal id="abyss-insight-line">It noticed every pause.</p>
+        <p class="abyss-line whisper-red" data-reveal id="abyss-enough-line">That was enough to learn you.</p>
+        <p class="abyss-line final-line" data-reveal>It doesn't need you anymore.</p>
 
         <div class="abyss-cta-wrap">
           <button type="button" class="abyss-trigger-btn" id="abyss-trigger-btn">
-            <span class="abyss-btn-text" id="abyss-btn-text">Look Closer</span>
+            <span class="abyss-btn-text" id="abyss-btn-text">Let it finish</span>
           </button>
           <p class="abyss-hint">or stay still for two seconds</p>
         </div>
@@ -691,6 +714,8 @@
       <footer class="dead-footer">
         <span>SUB-LEVEL 09</span>
         <span class="dead-sep">·</span>
+        <button type="button" class="reset-link" id="footer-pass-btn" hidden>Your resident pass</button>
+        <span class="dead-sep" id="footer-pass-sep" hidden>·</span>
         <button type="button" class="reset-link" id="footer-reset-btn">Start over from daylight</button>
       </footer>
     </section>
@@ -704,30 +729,19 @@
     <span class="audio-label" id="audio-label">Enable Audio (Recommended)</span>
   </button>
 
-  <!-- Two-Stage Full-Screen Psychological Horror Climax Overlay -->
+  <!-- Climax: black silence -> the thing at the glass -> handoff -> ghost replay -->
   <div class="climax-overlay" id="climax-overlay" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="climax-pre" id="climax-pre">
-      <p>Don't move your hand.</p>
+      <p id="climax-pre-text">Don't move your hand.</p>
     </div>
 
-    <!-- Stage 1: Pressed against the glass -->
+    <!-- Stage 1: Pressed against the glass (the copy, breaking through) -->
     <div class="climax-stage climax-stage-1" id="climax-stage-1">
       <img src="assets/entity-glass.jpg" alt="" class="climax-img-glass" />
       <div class="climax-vignette" aria-hidden="true"></div>
       <div class="climax-hud">
         <div class="climax-hud-line">GLASS CONTACT // CONFIRMED</div>
         <div class="climax-hud-line red">IT LEARNED YOUR RHYTHM</div>
-      </div>
-    </div>
-
-    <!-- Stage 2: Sudden visceral lurch in deep subterranean ember-crimson -->
-    <div class="climax-stage climax-stage-2" id="climax-stage-2">
-      <img src="assets/entity-climax.jpg" alt="" class="climax-entity" id="climax-entity" />
-      <div class="climax-blood-wash" aria-hidden="true"></div>
-      <div class="climax-vignette" aria-hidden="true"></div>
-      <div class="climax-hud">
-        <div class="climax-hud-line">CONTINUITY HANDOFF // COMPLETE</div>
-        <div class="climax-hud-line red">IT HAS YOUR SEAT NOW</div>
       </div>
     </div>
 
@@ -757,18 +771,29 @@
       <circle cx="1020" cy="520" r="24" fill="rgba(120, 10, 14, 0.35)" />
     </svg>
 
-    <!-- Bleak psychological twist aftermath -->
-    <div class="climax-aftermath" id="climax-aftermath">
-      <p class="aftermath-primary">It has your seat now.</p>
-      <p class="aftermath-secondary">Go back up to the top of the page. See what it left in your place.</p>
-      <div class="aftermath-actions">
-        <button type="button" class="aftermath-btn" id="aftermath-return-btn">Return to the surface</button>
-        <button type="button" class="aftermath-btn subtle" id="aftermath-reset-btn">Reset to daylight</button>
-      </div>
+    <!-- Handoff card: shown on black right before the ghost replay -->
+    <div class="climax-handoff" id="climax-handoff">
+      <div class="climax-hud-line">CONTINUITY HANDOFF // IN PROGRESS</div>
+      <div class="climax-hud-line red">SUBJECT #<span class="subject-id">0419</span> — CONTROL TRANSFERRING</div>
+    </div>
+  </div>
+
+  <!-- Aftermath dock: the visitor is left on the surface, which now belongs to the copy -->
+  <div class="aftermath-dock" id="aftermath-dock" aria-hidden="true">
+    <p class="aftermath-primary">It has your seat now.</p>
+    <p class="aftermath-secondary" id="aftermath-secondary">Look around. It already wrote your review.</p>
+    <div class="aftermath-actions">
+      <button type="button" class="aftermath-btn" id="aftermath-pass-btn">Your resident pass</button>
+      <button type="button" class="aftermath-btn subtle" id="aftermath-dismiss-btn">Look around</button>
+      <button type="button" class="aftermath-btn subtle" id="aftermath-reset-btn">Reset to daylight</button>
     </div>
   </div>
 
   <script src="audio.js"></script>
+  <script src="tracker.js"></script>
+  <script src="memory.js"></script>
+  <script src="ghost.js"></script>
+  <script src="pass.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

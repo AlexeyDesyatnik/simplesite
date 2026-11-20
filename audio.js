@@ -18,6 +18,7 @@
       this.enabled = false;
       this.dread = 0;
       this.inVacuum = false;
+      this.forcedVacuum = false;
       this.sirenPlayed = false;
       this.heartbeatTimer = null;
       this.foleyTimer = null;
@@ -279,7 +280,13 @@
       }, 80);
     }
 
+    // Explicit, externally-held silence (climax, ghost replay). Survives setDread() calls.
     setVacuumSilence(active) {
+      this.forcedVacuum = !!active;
+      this.applyVacuum(this.forcedVacuum || this.dread >= 0.935);
+    }
+
+    applyVacuum(active) {
       if (this.inVacuum === active) return;
       this.inVacuum = active;
       if (!this.ctx || !this.enabled) return;
@@ -332,7 +339,7 @@
         this.playDistantOtherworldSiren();
       }
 
-      this.setVacuumSilence(d >= 0.935);
+      this.applyVacuum(this.forcedVacuum || d >= 0.935);
     }
 
     // =======================================================================

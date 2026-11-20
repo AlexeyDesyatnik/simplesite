@@ -51,6 +51,10 @@ html {
   background-color: #020001;
 }
 
+html:has(body.ghost-active) {
+  scroll-behavior: auto;
+}
+
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -93,7 +97,7 @@ button {
 }
 
 /* ==========================================================================
-   ATMOSPHERIC FULL-SCREEN OVERLAYS (0% invisible -> deep subterranean hell)
+   ATMOSPHERIC FULL-SCREEN OVERLAYS (0% invisible -> server-room dark)
    ========================================================================== */
 
 #decay-canvas {
@@ -103,48 +107,7 @@ button {
   height: 100vh;
   pointer-events: none;
   z-index: 38;
-  opacity: calc(var(--otherworld, 0) * 0.96);
-}
-
-#eyes-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 40;
-  opacity: calc(var(--horror) * 0.96);
-}
-
-/* Silent Hill Otherworld peeling rust & damp corroded iron patina */
-.overlay-rust {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 37;
-  opacity: calc(var(--otherworld, 0) * 0.42);
-  background-image:
-    radial-gradient(ellipse at 12% 18%, rgba(72, 18, 12, 0.36) 0%, transparent 48%),
-    radial-gradient(ellipse at 88% 72%, rgba(58, 16, 10, 0.4) 0%, transparent 52%),
-    radial-gradient(ellipse at 50% 95%, rgba(82, 12, 14, 0.34) 0%, transparent 56%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 280 280' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0.45 0 0 0 0.08  0.14 0.06 0 0 0.01  0.08 0 0.04 0 0  0 0 0 0.65 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
-  background-size: cover, cover, cover, 420px 420px;
-  mix-blend-mode: overlay;
-}
-
-/* Subtle subterranean ember glow rising from the bottom of the pit */
-.overlay-hell-glow {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 39;
-  opacity: calc(var(--hell) * 0.65);
-  background: radial-gradient(
-    ellipse 85% 42% at 50% 108%,
-    rgba(115, 14, 14, 0.42) 0%,
-    rgba(52, 6, 8, 0.22) 45%,
-    transparent 82%
-  );
+  opacity: calc(var(--otherworld, 0) * 0.85);
 }
 
 .overlay-vignette {
@@ -682,6 +645,20 @@ body.stage-abyss .main-nav a {
   color: var(--page-muted);
 }
 
+.mock-edited {
+  margin: 5px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--page-muted);
+  opacity: 0.78;
+}
+
+body.is-contaminated .mock-edited {
+  color: #fca5a5;
+  opacity: 0.92;
+}
+
 .mock-avatars {
   display: flex;
 }
@@ -921,12 +898,14 @@ body.stage-abyss .main-nav a {
   flex: 1;
 }
 
-.testimonial-card.uncanny-2 {
+body.is-contaminated .testimonial-card.uncanny-2,
+.testimonial-card.uncanny-2:has([data-swapped="1"]) {
   transform: translateY(3px) rotate(-0.25deg);
 }
 
-.testimonial-card.uncanny-3 {
-  transform: translateY(8px) rotate(0.4deg);
+body.is-contaminated .testimonial-card.uncanny-3,
+.testimonial-card.uncanny-3:has([data-swapped="1"]) {
+  transform: translateY(6px) rotate(0.35deg);
 }
 
 .stars {
@@ -935,7 +914,8 @@ body.stage-abyss .main-nav a {
   letter-spacing: 0.12em;
 }
 
-.stars.odd-stars {
+body.is-contaminated .stars.odd-stars,
+.testimonial-card:has([data-swapped="1"]) .stars.odd-stars {
   color: var(--page-muted);
   letter-spacing: 0.22em;
 }
@@ -955,12 +935,12 @@ body.stage-abyss .main-nav a {
   border-top: 1px solid var(--card-border);
 }
 
-.testimonial-card.uncanny-2 .story-photo {
-  filter: saturate(0.86) contrast(1.06);
+.testimonial-card.uncanny-2:has([data-swapped="1"]) .story-photo {
+  filter: saturate(0.84) contrast(1.06);
 }
 
-.testimonial-card.uncanny-3 .story-photo {
-  filter: saturate(0.68) contrast(1.14) brightness(0.9);
+.testimonial-card.uncanny-3:has([data-swapped="1"]) .story-photo {
+  filter: saturate(0.64) contrast(1.14) brightness(0.9);
   object-position: center 32%;
 }
 
@@ -1024,6 +1004,16 @@ body.stage-abyss .main-nav a {
   font-size: 0.79rem;
   line-height: 1.55;
   border-bottom: 1px solid rgba(120, 130, 122, 0.14);
+}
+
+.audit-row[hidden] {
+  display: none;
+}
+
+.audit-row.hook-row {
+  border-left: 2px solid rgba(217, 119, 6, 0.78);
+  background: rgba(34, 28, 22, 0.96);
+  color: #e6d7c4;
 }
 
 .audit-row:last-child {
@@ -1482,71 +1472,20 @@ body.stage-abyss .main-nav a {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.22em;
-  color: rgba(185, 28, 28, 0.72);
+  color: rgba(180, 174, 174, 0.56);
 }
 
 .seam-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(145, 24, 24, 0.56), transparent);
-}
-
-.seam-drips {
-  display: block;
-  width: min(820px, calc(100% - 44px));
-  height: 92px;
-  margin: 0 auto;
-  opacity: calc(var(--otherworld, 0) * 0.95);
-  filter: drop-shadow(0 6px 12px rgba(45, 2, 4, 0.7));
-}
-
-/* Corroded Silent Hill Otherworld frames & stained glass seepage */
-.corroded-frame {
-  position: relative;
-  border-color: rgba(118, 32, 22, 0.46) !important;
-  box-shadow:
-    inset 0 0 38px rgba(68, 12, 10, 0.35),
-    0 36px 96px rgba(0, 0, 0, 0.92) !important;
-}
-
-.corroded-frame::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -22px;
-  height: 22px;
-  pointer-events: none;
-  background:
-    radial-gradient(6px 18px at 14% 0%, rgba(86, 10, 14, 0.72) 0%, transparent 100%),
-    radial-gradient(5px 22px at 41% 0%, rgba(76, 8, 12, 0.65) 0%, transparent 100%),
-    radial-gradient(7px 16px at 78% 0%, rgba(92, 12, 14, 0.7) 0%, transparent 100%),
-    radial-gradient(4px 19px at 89% 0%, rgba(68, 8, 10, 0.6) 0%, transparent 100%);
-}
-
-.otherworld-stain-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 20% 85%, rgba(78, 10, 12, 0.36) 0%, transparent 48%),
-    radial-gradient(ellipse at 82% 18%, rgba(64, 18, 10, 0.32) 0%, transparent 44%),
-    linear-gradient(180deg, rgba(22, 6, 6, 0.14) 0%, transparent 40%, rgba(36, 4, 6, 0.44) 100%);
-  mix-blend-mode: multiply;
-}
-
-.corroded-log {
-  background: linear-gradient(135deg, rgba(18, 8, 9, 0.88), rgba(9, 4, 6, 0.94));
-  border-left: 3px solid rgba(148, 28, 22, 0.74);
-  border-top: 1px solid rgba(110, 32, 22, 0.2);
-  box-shadow: inset 0 0 28px rgba(55, 8, 8, 0.25);
+  background: linear-gradient(90deg, transparent, rgba(160, 140, 140, 0.36), transparent);
 }
 
 /* ==========================================================================
-   ACT 6: BELOW THE FOOTER — DESCENT INTO HELL
+   ACT 6: BELOW THE FOOTER — TRAINING DATA (INTERNAL)
    ========================================================================== */
 
-.horror-cctv-section {
+.training-section {
   padding-top: 80px;
   padding-bottom: 150px;
 }
@@ -1582,63 +1521,166 @@ body.stage-abyss .main-nav a {
   font-size: 0.9rem;
 }
 
-.evidence-plate {
+.td-panel {
   margin: 0 auto 64px;
-  background: #060406;
-  border: 1px solid rgba(153, 27, 27, 0.28);
-  box-shadow: 0 36px 96px rgba(0, 0, 0, 0.9);
+  background: rgba(8, 8, 10, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
   overflow: hidden;
+  font-family: var(--font-mono);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.85);
 }
 
-.evidence-media {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #020102;
+.td-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 20px;
+  background: rgba(16, 15, 18, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: #9c9797;
 }
 
-.evidence-img {
+.td-fidelity-wrap {
+  color: #c2b8b8;
+}
+
+.td-fidelity-wrap b {
+  color: #ef4444;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.td-progress {
+  height: 3px;
   width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#td-progress-fill {
+  display: block;
   height: 100%;
-  object-fit: cover;
-  filter: contrast(1.18) brightness(0.84) saturate(0.68);
-  transition: transform 6s ease, filter 1.2s ease;
+  width: 61%;
+  background: linear-gradient(90deg, #525866, #991b1b 70%, #dc2626);
+  transition: width 0.35s ease;
 }
 
-.evidence-plate:hover .evidence-img {
-  transform: scale(1.045);
-  filter: contrast(1.25) brightness(0.9) saturate(0.6);
+.td-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 20px;
 }
 
-.evidence-overlay-tag {
-  position: absolute;
-  top: 16px;
-  left: 18px;
-  padding: 5px 10px;
-  background: rgba(5, 3, 5, 0.84);
-  border: 1px solid rgba(185, 28, 28, 0.35);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+.td-card {
+  background: rgba(13, 12, 15, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.td-wide {
+  grid-column: 1 / -1;
+}
+
+.td-card-title {
+  font-size: 0.72rem;
   letter-spacing: 0.12em;
-  color: #d8c8c8;
+  color: #d6d0d0;
 }
 
-.evidence-caption {
-  padding: 18px 22px;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1.7;
-  color: #9e9393;
+.td-dim {
+  color: #6b6767;
+}
+
+.td-canvas {
+  display: block;
+  width: 100%;
+  height: 340px;
+  background: rgba(3, 3, 5, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+}
+
+.td-caption {
+  font-size: 0.72rem;
+  color: #777272;
+  letter-spacing: 0.03em;
+}
+
+.td-insights {
+  margin: 0;
+  padding: 0 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #c8c0c0;
+}
+
+.td-insights li::marker {
+  color: #991b1b;
+}
+
+.td-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.td-stats > div {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.td-k {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: #787373;
+}
+
+.td-v {
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #e4dede;
+}
+
+.td-predict {
+  padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: #8b8585;
 }
 
-.caption-code { color: #b91c1c; font-weight: 500; }
+.td-predict b {
+  color: #e6d6d6;
+  font-weight: 500;
+}
+
+.td-predict span {
+  color: #b91c1c;
+}
 
 .cctv-frame {
   margin: 0 auto 72px;
   padding: 10px;
-  background: #050305;
-  border: 1px solid rgba(153, 27, 27, 0.3);
+  background: #060608;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   box-shadow: 0 35px 90px rgba(0, 0, 0, 0.92);
 }
 
@@ -1943,7 +1985,7 @@ body.is-contaminated .window-status {
 }
 
 /* ==========================================================================
-   TWO-STAGE FULL-SCREEN HORROR CLIMAX OVERLAY
+   CLIMAX OVERLAY (Silence -> Glass Contact -> Handoff -> Ghost Replay)
    ========================================================================== */
 
 .climax-overlay {
@@ -1957,6 +1999,10 @@ body.is-contaminated .window-status {
   pointer-events: none;
   transition: opacity 0.45s ease;
   overflow: hidden;
+}
+
+.climax-overlay.instant {
+  transition: none !important;
 }
 
 .climax-overlay.active { opacity: 1; pointer-events: auto; }
@@ -1984,11 +2030,10 @@ body.is-contaminated .window-status {
   place-items: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.16s ease;
 }
 
 .climax-overlay.phase-stage-1 .climax-stage-1 { opacity: 1; }
-.climax-overlay.phase-stage-2 .climax-stage-2 { opacity: 1; transition: opacity 0.08s ease; }
 
 .climax-img-glass {
   width: 100vw;
@@ -1999,40 +2044,13 @@ body.is-contaminated .window-status {
 }
 
 .climax-overlay.phase-stage-1 .climax-img-glass {
-  animation: glassPressIn 2.2s cubic-bezier(0.22, 0.72, 0.3, 1) forwards;
+  animation: glassPressIn 1.6s cubic-bezier(0.22, 0.72, 0.3, 1) forwards;
 }
 
 @keyframes glassPressIn {
   0% { transform: scale(0.98); filter: contrast(1.1) brightness(0.16) saturate(0.4); }
-  25% { transform: scale(1.05); filter: contrast(1.3) brightness(0.84) saturate(0.6); }
-  100% { transform: scale(1.16); filter: contrast(1.42) brightness(0.94) saturate(0.42); }
-}
-
-.climax-entity {
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  filter: contrast(1.48) brightness(0.84) saturate(0.35);
-  will-change: transform, filter;
-}
-
-.climax-overlay.phase-stage-2 .climax-entity {
-  animation: entityLurch 2.7s cubic-bezier(0.16, 0.88, 0.24, 1) forwards;
-}
-
-@keyframes entityLurch {
-  0% { transform: scale(1.08) translate(-5px, 4px); filter: contrast(1.55) brightness(0.96) saturate(0.38) drop-shadow(-10px 0 0 rgba(165, 16, 20, 0.6)); }
-  30% { transform: scale(1.22) translate(6px, -3px); filter: contrast(1.68) brightness(0.92) saturate(0.26) drop-shadow(12px 0 0 rgba(165, 16, 20, 0.58)); }
-  75% { transform: scale(1.38) translate(-3px, -5px); filter: contrast(1.82) brightness(1.02) saturate(0.18); }
-  100% { transform: scale(1.5); filter: contrast(2) brightness(0); }
-}
-
-.climax-blood-wash {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 45%, rgba(120, 8, 12, 0.14) 0%, rgba(75, 4, 8, 0.54) 75%, rgba(0, 0, 0, 0.94) 100%);
-  mix-blend-mode: multiply;
+  30% { transform: scale(1.06); filter: contrast(1.3) brightness(0.84) saturate(0.6); }
+  100% { transform: scale(1.14); filter: contrast(1.42) brightness(0.92) saturate(0.42); }
 }
 
 .climax-vignette {
@@ -2056,31 +2074,20 @@ body.is-contaminated .window-status {
 }
 
 .climax-crack-svg .crack-main {
-  stroke: rgba(238, 242, 245, 0.72);
+  stroke: rgba(238, 242, 245, 0.76);
   stroke-width: 2.1;
   filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.95)) drop-shadow(1px 1px 1px rgba(155, 18, 22, 0.45));
 }
 
 .climax-crack-svg .crack-sub {
-  stroke: rgba(215, 222, 228, 0.46);
+  stroke: rgba(215, 222, 228, 0.48);
   stroke-width: 1.25;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.95));
 }
 
 .climax-overlay.cracked .climax-crack-svg {
-  opacity: 0.92;
+  opacity: 0.94;
   transform: scale(1);
-}
-
-.climax-overlay.cracked-deep .climax-crack-svg {
-  opacity: 1;
-  transform: scale(1.045);
-}
-
-.climax-overlay.cracked-deep .climax-crack-svg .crack-main {
-  stroke: rgba(245, 210, 210, 0.86);
-  stroke-width: 2.6;
-  filter: drop-shadow(0 0 5px rgba(170, 14, 18, 0.85));
 }
 
 .climax-hud {
@@ -2098,71 +2105,281 @@ body.is-contaminated .window-status {
 
 .climax-hud-line.red { color: #ef4444; font-weight: 500; }
 
-.climax-aftermath {
+.climax-handoff {
   position: relative;
   z-index: 5;
   text-align: center;
   padding: 24px;
-  max-width: 600px;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  letter-spacing: 0.18em;
+  color: rgba(226, 226, 226, 0.82);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   opacity: 0;
-  transform: translateY(10px);
   pointer-events: none;
-  transition: opacity 1.6s ease, transform 1.6s ease;
+  transition: opacity 0.35s ease;
 }
 
-.climax-overlay.phase-aftermath .climax-aftermath { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.climax-overlay.phase-handoff .climax-handoff {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   GHOST REPLAY (The copy browsing the page in your place)
+   ========================================================================== */
+
+body.ghost-active,
+body.ghost-active * {
+  cursor: none !important;
+  user-select: none;
+}
+
+body.ghost-daylight .overlay-vignette,
+body.ghost-daylight .overlay-grain,
+body.ghost-daylight .overlay-scanlines,
+body.ghost-daylight .overlay-heartbeat,
+body.ghost-daylight #decay-canvas {
+  opacity: 0 !important;
+}
+
+.ghost-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 105;
+  background: transparent;
+  touch-action: none;
+}
+
+.ghost-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 112;
+  pointer-events: none;
+  will-change: transform;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.38));
+  transition: opacity 0.45s ease;
+}
+
+.ghost-cursor svg {
+  display: block;
+  transition: transform 0.12s ease;
+}
+
+.ghost-cursor.faint {
+  opacity: 0.44;
+}
+
+.ghost-cursor.freeze {
+  filter: drop-shadow(0 0 10px rgba(185, 28, 28, 0.8));
+}
+
+.ghost-cursor.press svg {
+  transform: scale(0.84);
+}
+
+.ghost-finger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  border: 2px solid rgba(15, 23, 42, 0.55);
+  background: rgba(79, 70, 229, 0.14);
+  z-index: 112;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 0.45s ease, background-color 0.14s ease, border-color 0.14s ease;
+}
+
+.ghost-finger.down {
+  background: rgba(79, 70, 229, 0.34);
+  border-color: rgba(79, 70, 229, 0.85);
+}
+
+.ghost-finger.faint {
+  opacity: 0.42;
+}
+
+.ghost-cursor.fade,
+.ghost-finger.fade {
+  opacity: 0;
+}
+
+.ghost-ripple {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border-radius: 50%;
+  border: 2px solid rgba(79, 70, 229, 0.72);
+  pointer-events: none;
+  z-index: 111;
+  animation: ghostRipple 0.85s cubic-bezier(0.16, 0.84, 0.32, 1) forwards;
+}
+
+@keyframes ghostRipple {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+.ghost-pressed {
+  transform: scale(0.95) !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.32) !important;
+}
+
+/* ==========================================================================
+   AFTERMATH DOCK (Left on the contaminated surface after handoff)
+   ========================================================================== */
+
+.aftermath-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(24px);
+  z-index: 80;
+  width: min(600px, calc(100vw - 32px));
+  padding: 24px 28px;
+  border-radius: 14px;
+  background: rgba(8, 6, 8, 0.94);
+  border: 1px solid rgba(185, 28, 28, 0.42);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(12px);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.85s ease, transform 0.85s ease;
+}
+
+.aftermath-dock.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
 
 .aftermath-primary {
-  margin: 0 0 14px;
+  margin: 0 0 8px;
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 4.5vw, 3.1rem);
+  font-size: clamp(1.5rem, 3.4vw, 2.15rem);
   color: #ebe0e0;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .aftermath-secondary {
-  margin: 0 0 42px;
+  margin: 0 0 20px;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  letter-spacing: 0.09em;
-  line-height: 1.7;
-  color: #8f7b7b;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  line-height: 1.65;
+  color: #9e8d8d;
 }
 
 .aftermath-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .aftermath-btn {
-  padding: 12px 22px;
+  padding: 10px 18px;
   border-radius: 8px;
-  border: 1px solid rgba(185, 28, 28, 0.45);
-  background: rgba(69, 10, 10, 0.44);
-  color: #ebd5d5;
+  border: 1px solid rgba(185, 28, 28, 0.5);
+  background: rgba(88, 12, 12, 0.52);
+  color: #f0dada;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  letter-spacing: 0.07em;
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-.aftermath-btn:hover { background: rgba(127, 29, 29, 0.62); border-color: rgba(220, 38, 38, 0.72); }
+.aftermath-btn:hover { background: rgba(127, 29, 29, 0.72); border-color: rgba(220, 38, 38, 0.8); }
 
 .aftermath-btn.subtle { background: transparent; border-color: rgba(255, 255, 255, 0.16); color: #9e9696; }
 .aftermath-btn.subtle:hover { background: rgba(255, 255, 255, 0.06); color: #e5dede; }
 
-@keyframes subtleTremble {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-2px, 1px); }
-  40% { transform: translate(2px, -1px); }
-  60% { transform: translate(-1px, -2px); }
-  80% { transform: translate(2px, 1px); }
+/* ==========================================================================
+   RESIDENT PASS MODAL
+   ========================================================================== */
+
+.pass-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: rgba(2, 1, 2, 0.88);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
-body.trembling main { animation: subtleTremble 0.2s linear infinite; }
+.pass-modal.visible {
+  opacity: 1;
+}
+
+.pass-sheet {
+  width: min(760px, 100%);
+  background: #0b0a0c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 36px 100px rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.pass-img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pass-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(185, 28, 28, 0.52);
+  background: rgba(88, 12, 12, 0.5);
+  color: #f0dada;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.pass-btn:hover { background: rgba(127, 29, 29, 0.72); border-color: rgba(220, 38, 38, 0.8); }
+.pass-btn.subtle { background: transparent; border-color: rgba(255, 255, 255, 0.16); color: #9e9696; }
+.pass-btn.subtle:hover { background: rgba(255, 255, 255, 0.07); color: #e5dede; }
+.pass-btn[hidden] { display: none; }
+
+.pass-note {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: #776d6d;
+  text-align: center;
+}
 
 /* ==========================================================================
    RESPONSIVE
@@ -2172,14 +2389,42 @@ body.trembling main { animation: subtleTremble 0.2s linear infinite; }
   .main-nav { display: none; }
   .window-body { grid-template-columns: 1fr; }
   .window-sidebar { display: none; }
-  .features-grid, .testimonials-grid, .pricing-grid, .presence-grid { grid-template-columns: 1fr; }
+  .features-grid, .testimonials-grid, .pricing-grid, .presence-grid, .td-grid { grid-template-columns: 1fr; }
+  .td-wide { grid-column: auto; }
+  .td-stats { grid-template-columns: repeat(2, 1fr); }
+  .td-canvas { height: 270px; }
   .audit-row { grid-template-columns: 1fr; gap: 6px; }
   .audit-status { justify-self: start; }
   .metrics-band { grid-template-columns: repeat(2, 1fr); }
   .pricing-card:nth-child(1), .pricing-card.corrupted-tier, .testimonial-card.uncanny-2, .testimonial-card.uncanny-3, .log-entry.tilted-left, .log-entry.tilted-right { transform: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .overlay-grain, .abyss-trigger-btn, .rec-dot, .live-blink, body.trembling main { animation: none !important; }
+@media (max-width: 560px) {
+  .container, .narrowing-container, .hell-container { width: calc(100% - 28px); }
+  .header-inner { height: 60px; }
+  .btn-ghost { display: none; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn-lg { justify-content: center; }
+  .window-main { padding: 18px 16px; }
+  .window-header-row { flex-direction: column; gap: 12px; }
+  .mock-task { flex-wrap: wrap; gap: 8px; padding: 11px 12px; font-size: 0.85rem; }
+  .mock-footer-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .whisper-toast {
+    top: 70px;
+    max-width: calc(100vw - 24px);
+    padding: 9px 14px;
+    border-radius: 12px;
+    font-size: 0.68rem;
+    text-align: center;
+    line-height: 1.45;
+  }
+  .td-bar, .td-grid { padding: 14px; }
+  .cctv-hud { padding: 10px 12px; font-size: 0.62rem; }
+  .cctv-reticle { width: 92px; height: 118px; }
+  .reticle-label { font-size: 0.56rem; }
+  .audio-pill { right: 12px; bottom: 12px; padding: 8px 12px; font-size: 0.72rem; }
+  .aftermath-dock { bottom: 60px; padding: 18px 16px; }
+  .aftermath-actions { flex-direction: column; align-items: stretch; }
+  .pass-sheet { padding: 14px; }
+  .climax-hud { top: 18px; left: 18px; font-size: 0.68rem; }
 }
