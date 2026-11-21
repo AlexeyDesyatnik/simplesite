@@ -24,10 +24,17 @@
   const isTouch =
     (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window;
 
+  const rootVarCache = Object.create(null);
+  function setRootVar(name, value) {
+    if (rootVarCache[name] === value) return;
+    rootVarCache[name] = value;
+    root.style.setProperty(name, value);
+  }
+
   // Acoustic Engine
   const audio = new window.DreadAudioEngine();
   audio.onPulse = (val) => {
-    root.style.setProperty('--pulse', String(val));
+    setRootVar('--pulse', String(val));
   };
 
   // Session State
@@ -196,8 +203,42 @@
     footerPassSep: $('footer-pass-sep'),
     footerResetBtn: $('footer-reset-btn'),
 
-    decayCanvas: $('decay-canvas')
+    decayCanvas: $('decay-canvas'),
+    overlayVignette: document.querySelector('.overlay-vignette'),
+    overlayGrain: document.querySelector('.overlay-grain'),
+    overlayScanlines: document.querySelector('.overlay-scanlines'),
+    overlayHeartbeat: document.querySelector('.overlay-heartbeat')
   };
+
+  function initGrainTexture() {
+    if (!el.overlayGrain) return;
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    const img = ctx.createImageData(size, size);
+    const data = img.data;
+    let seed = 918273;
+    for (let i = 0; i < data.length; i += 4) {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      const v = seed >>> 24;
+      data[i] = v;
+      data[i + 1] = v;
+      data[i + 2] = v;
+      data[i + 3] = 230;
+    }
+    ctx.putImageData(img, 0, 0);
+    el.overlayGrain.style.backgroundImage = `url(${c.toDataURL('image/png')})`;
+  }
+
+  const overlayIdleState = new WeakMap();
+  function setOverlayIdle(node, isIdle) {
+    if (!node || overlayIdleState.get(node) === isIdle) return;
+    overlayIdleState.set(node, isIdle);
+    node.classList.toggle('overlay-idle', isIdle);
+  }
 
   document.querySelectorAll('.subject-id').forEach((n) => (n.textContent = subjectId));
 
@@ -347,19 +388,21 @@
     const border = sampleColorStops(borderStops, toneDread);
     const accent = sampleColorStops(accentStops, toneDread);
 
-    root.style.setProperty('--page-bg', `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`);
-    root.style.setProperty('--page-fg', `rgb(${fg[0]}, ${fg[1]}, ${fg[2]})`);
-    root.style.setProperty('--page-muted', `rgb(${muted[0]}, ${muted[1]}, ${muted[2]})`);
-    root.style.setProperty('--card-bg', `rgba(${card[0]}, ${card[1]}, ${card[2]}, 0.92)`);
-    root.style.setProperty('--card-border', `rgba(${border[0]}, ${border[1]}, ${border[2]}, 0.75)`);
-    root.style.setProperty('--header-bg', `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, 0.86)`);
-    root.style.setProperty('--header-border', `rgba(${border[0]}, ${border[1]}, ${border[2]}, 0.52)`);
-    root.style.setProperty('--accent-dyn', `rgb(${accent[0]}, ${accent[1]}, ${accent[2]})`);
+    setRootVar('--page-bg', `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`);
+    setRootVar('--page-fg', `rgb(${fg[0]}, ${fg[1]}, ${fg[2]})`);
+    setRootVar('--page-muted', `rgb(${muted[0]}, ${muted[1]}, ${muted[2]})`);
+    setRootVar('--card-bg', `rgba(${card[0]}, ${card[1]}, ${card[2]}, 0.92)`);
+    setRootVar('--card-border', `rgba(${border[0]}, ${border[1]}, ${border[2]}, 0.75)`);
+    setRootVar('--header-bg', `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, 0.86)`);
+    setRootVar('--header-border', `rgba(${border[0]}, ${border[1]}, ${border[2]}, 0.52)`);
+    setRootVar('--accent-dyn', `rgb(${accent[0]}, ${accent[1]}, ${accent[2]})`);
 
-    // Corridor narrows imperceptibly as you descend past 45%
-    const squeeze = ghostActive ? 0 : rangeMap(d, 0.44, 0.8);
-    const corridorPx = Math.round(lerp(1140, 860, squeeze));
-    root.style.setProperty('--corridor-w', `${corridorPx}px`);
+    // Corridor narrows imperceptibly as you descend past 45% (desktop/tablet only; <=560px is fixed in CSS)
+    if (window.innerWidth > 560) {
+      const squeeze = ghostActive ? 0 : rangeMap(d, 0.44, 0.8);
+      const corridorPx = Math.round(lerp(1140, 860, squeeze));
+      setRootVar('--corridor-w', `${corridorPx}px`);
+    }
   }
 
   // =========================================================================
@@ -425,26 +468,44 @@
   // RETROACTIVE GASLIGHTING & PERIPHERAL VISION DRIFT
   // =========================================================================
 
-  function updateRetroactiveGaslighting() {
+  let lastGaslightAt = 0;
+  function updateRetroactiveGaslighting(timeMs) {
     if (currentDread < 0.35 || isContaminated || ghostActive) return;
-    gaslightNodes.forEach((node) => {
-      if (node.dataset.swapped === '1') return;
-      const rect = node.getBoundingClientRect();
-      // Only mutate AFTER the reader has scrolled completely past it
-      if (rect.bottom < -60) {
-        node.textContent = node.dataset.gaslight;
-        node.dataset.swapped = '1';
+    if (timeMs - lastGaslightAt < 160) return;
+    lastGaslightAt = timeMs;
+
+    // Batch all geometry reads before any DOM writes to avoid layout thrashing
+    const toSwap = [];
+    for (let i = 0; i < gaslightNodes.length; i++) {
+      const node = gaslightNodes[i];
+      if (node.dataset.swapped === '1') continue;
+      if (node.getBoundingClientRect().bottom < -60) {
+        toSwap.push(node);
       }
-    });
+    }
+    for (let i = 0; i < toSwap.length; i++) {
+      const node = toSwap[i];
+      node.textContent = node.dataset.gaslight;
+      node.dataset.swapped = '1';
+    }
   }
 
-  function updatePeripheralDrift() {
+  let lastPeripheralAt = 0;
+  function updatePeripheralDrift(timeMs) {
     if (currentDread < 0.3 || climaxActive || ghostActive) return;
+    if (timeMs - lastPeripheralAt < 140) return;
+    lastPeripheralAt = timeMs;
+
     const vh = window.innerHeight;
     const scrollIdle = Date.now() - lastScrollTime > 500;
 
-    peripheralNodes.forEach((node) => {
-      const rect = node.getBoundingClientRect();
+    // Batch reads first
+    const rects = peripheralNodes.map((node) => node.getBoundingClientRect());
+
+    // Then apply writes
+    for (let i = 0; i < peripheralNodes.length; i++) {
+      const node = peripheralNodes[i];
+      const rect = rects[i];
       const inView = rect.bottom > 0 && rect.top < vh;
       const restore = () => {
         if (node.dataset.shifted === '1') {
@@ -453,7 +514,10 @@
           node.classList.remove('peripheral-shifted');
         }
       };
-      if (!inView) return restore();
+      if (!inView) {
+        restore();
+        continue;
+      }
 
       const cx = rect.left + rect.width * 0.5;
       const cy = rect.top + rect.height * 0.5;
@@ -467,7 +531,7 @@
         node.dataset.shifted = '1';
         node.classList.add('peripheral-shifted');
       }
-    });
+    }
   }
 
   // Subliminal 210ms word flickers
@@ -721,8 +785,9 @@
   // LIVE TELEMETRY, MIRROR, CCTV
   // =========================================================================
 
+  let cctvVisible = false;
   function updateCCTVProximity() {
-    if (!el.cctvFrame || !el.cctvImage) return;
+    if (!cctvVisible || !el.cctvFrame || !el.cctvImage) return;
     const rect = el.cctvFrame.getBoundingClientRect();
     const vh = window.innerHeight;
     if (rect.bottom < -200 || rect.top > vh + 200) return;
@@ -834,8 +899,11 @@
     return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   }
 
-  function updateCCTVClock() {
-    if (!el.cctvClock) return;
+  let lastCCTVClockAt = 0;
+  function updateCCTVClock(timeMs) {
+    if (!cctvVisible || !el.cctvClock) return;
+    if (timeMs - lastCCTVClockAt < 75) return;
+    lastCCTVClockAt = timeMs;
     const d = new Date();
     const pad = (n, l = 2) => String(n).padStart(l, '0');
     el.cctvClock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
@@ -1029,12 +1097,23 @@
     }
   }
 
+  let dustCleared = true;
+  let lastDustAt = 0;
   function renderDust(timeMs, level) {
     if (!decayCtx) return;
     const w = window.innerWidth;
     const h = window.innerHeight;
+    if (level < 0.04) {
+      if (!dustCleared) {
+        decayCtx.clearRect(0, 0, w, h);
+        dustCleared = true;
+      }
+      return;
+    }
+    if (isTouch && timeMs - lastDustAt < 32) return;
+    lastDustAt = timeMs;
+    dustCleared = false;
     decayCtx.clearRect(0, 0, w, h);
-    if (level < 0.04) return;
     const t = timeMs * 0.001;
     const alpha = rangeMap(level, 0.04, 0.85);
     decayCtx.fillStyle = `rgba(190, 190, 194, ${(alpha * 0.32).toFixed(3)})`;
@@ -1053,30 +1132,50 @@
     });
   }
 
+  let brandEyeCenter = null;
+  function updateBrandEyeCenter() {
+    if (!el.brandPupil) return;
+    const rect = el.brandPupil.getBoundingClientRect();
+    brandEyeCenter = {
+      cx: rect.left + rect.width * 0.5,
+      cy: rect.top + rect.height * 0.5
+    };
+  }
+
   function resizeCanvas() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = isTouch ? 1 : Math.min(window.devicePixelRatio || 1, 2);
     if (el.decayCanvas && decayCtx) {
       el.decayCanvas.width = Math.floor(window.innerWidth * dpr);
       el.decayCanvas.height = Math.floor(window.innerHeight * dpr);
       decayCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dustCleared = true;
       buildMotes();
     }
+    updateBrandEyeCenter();
   }
 
+  let lastBrandEyeKey = '16,16';
   function updateBrandEye() {
     if (!el.brandPupil) return;
     if ((currentDread < 0.28 && !isContaminated) || ghostActive) {
-      el.brandPupil.setAttribute('cx', '16');
-      el.brandPupil.setAttribute('cy', '16');
+      if (lastBrandEyeKey !== '16,16') {
+        lastBrandEyeKey = '16,16';
+        el.brandPupil.setAttribute('cx', '16');
+        el.brandPupil.setAttribute('cy', '16');
+      }
       return;
     }
-    const rect = el.brandPupil.getBoundingClientRect();
-    const cx = rect.left + rect.width * 0.5;
-    const cy = rect.top + rect.height * 0.5;
-    const angle = Math.atan2(mouse.y - cy, mouse.x - cx);
+    if (!brandEyeCenter) updateBrandEyeCenter();
+    const angle = Math.atan2(mouse.y - brandEyeCenter.cy, mouse.x - brandEyeCenter.cx);
     const strength = isContaminated ? 3.2 : Math.min(3.0, (currentDread - 0.24) * 4.5);
-    el.brandPupil.setAttribute('cx', (16 + Math.cos(angle) * strength).toFixed(2));
-    el.brandPupil.setAttribute('cy', (16 + Math.sin(angle) * strength).toFixed(2));
+    const nx = (16 + Math.cos(angle) * strength).toFixed(2);
+    const ny = (16 + Math.sin(angle) * strength).toFixed(2);
+    const key = `${nx},${ny}`;
+    if (key !== lastBrandEyeKey) {
+      lastBrandEyeKey = key;
+      el.brandPupil.setAttribute('cx', nx);
+      el.brandPupil.setAttribute('cy', ny);
+    }
   }
 
   // =========================================================================
@@ -1634,6 +1733,14 @@
   );
   if (el.tdPanel) tdObserver.observe(el.tdPanel);
 
+  const cctvObserver = new IntersectionObserver(
+    (entries) => entries.forEach((e) => {
+      cctvVisible = e.isIntersecting;
+    }),
+    { rootMargin: '200px 0px', threshold: 0 }
+  );
+  if (el.cctvFrame) cctvObserver.observe(el.cctvFrame);
+
   // =========================================================================
   // MEMORY: what the page knew about you before this visit
   // =========================================================================
@@ -1675,8 +1782,15 @@
   // MAIN ANIMATION LOOP
   // =========================================================================
 
+  let lastAudioDread = -1;
+
   function tick(timeMs) {
-    currentDread += (targetDread - currentDread) * 0.068;
+    const diff = targetDread - currentDread;
+    if (Math.abs(diff) < 0.0004) {
+      currentDread = targetDread;
+    } else {
+      currentDread += diff * 0.068;
+    }
 
     const effectiveDread = toneFor(currentDread);
     const uncanny = rangeMap(effectiveDread, 0.22, 0.58);
@@ -1684,20 +1798,30 @@
     const horror = rangeMap(effectiveDread, 0.62, 0.92);
     const hell = rangeMap(effectiveDread, 0.74, 0.98);
 
-    root.style.setProperty('--dread', effectiveDread.toFixed(4));
-    root.style.setProperty('--uncanny', uncanny.toFixed(4));
-    root.style.setProperty('--otherworld', otherworld.toFixed(4));
-    root.style.setProperty('--horror', horror.toFixed(4));
-    root.style.setProperty('--hell', hell.toFixed(4));
+    setRootVar('--dread', effectiveDread.toFixed(3));
+    setRootVar('--uncanny', uncanny.toFixed(3));
+    setRootVar('--otherworld', otherworld.toFixed(3));
+    setRootVar('--horror', horror.toFixed(3));
+    setRootVar('--hell', hell.toFixed(3));
+
+    const grainOrVigIdle = ghostActive || (uncanny <= 0.001 && horror <= 0.001);
+    setOverlayIdle(el.overlayVignette, grainOrVigIdle);
+    setOverlayIdle(el.overlayGrain, grainOrVigIdle);
+    setOverlayIdle(el.overlayScanlines, ghostActive || horror <= 0.001);
+    setOverlayIdle(el.overlayHeartbeat, ghostActive || horror <= 0.001);
+    setOverlayIdle(el.decayCanvas, ghostActive || otherworld <= 0.001);
 
     applyContinuousAtmosphere(currentDread);
     if (!ghostActive) updateStageCopy(currentDread);
-    audio.setDread(effectiveDread);
-    updateRetroactiveGaslighting();
-    updatePeripheralDrift();
+    if (Math.abs(effectiveDread - lastAudioDread) > 0.001) {
+      lastAudioDread = effectiveDread;
+      audio.setDread(effectiveDread);
+    }
+    updateRetroactiveGaslighting(timeMs);
+    updatePeripheralDrift(timeMs);
     updateBrandEye();
     updateCCTVProximity();
-    updateCCTVClock();
+    updateCCTVClock(timeMs);
     renderDust(timeMs, otherworld);
 
     requestAnimationFrame(tick);
@@ -1705,6 +1829,7 @@
 
   if (isTouch && el.mirrorCursorKey) el.mirrorCursorKey.textContent = 'THUMB STATE';
 
+  initGrainTexture();
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
   applyMemoryOnLoad();

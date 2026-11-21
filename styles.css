@@ -107,6 +107,7 @@ button {
   height: 100vh;
   pointer-events: none;
   z-index: 38;
+  contain: strict;
   opacity: calc(var(--otherworld, 0) * 0.85);
 }
 
@@ -115,6 +116,7 @@ button {
   inset: 0;
   pointer-events: none;
   z-index: 42;
+  contain: strict;
   opacity: calc(var(--uncanny) * 0.22 + var(--horror) * 0.78);
   background: radial-gradient(
     ellipse at center,
@@ -126,22 +128,23 @@ button {
 
 .overlay-grain {
   position: fixed;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
+  inset: -24px;
   pointer-events: none;
   z-index: 43;
+  contain: strict;
+  will-change: transform;
   opacity: calc(var(--uncanny) * 0.028 + var(--horror) * 0.092);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
   animation: grainShift 0.35s steps(4) infinite;
 }
 
 @keyframes grainShift {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-2%, 1.5%); }
-  50% { transform: translate(1.5%, -2%); }
-  75% { transform: translate(-1%, -1%); }
-  100% { transform: translate(0, 0); }
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-14px, 10px, 0); }
+  50% { transform: translate3d(12px, -14px, 0); }
+  75% { transform: translate3d(-8px, -10px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
 .overlay-scanlines {
@@ -149,6 +152,7 @@ button {
   inset: 0;
   pointer-events: none;
   z-index: 44;
+  contain: strict;
   opacity: calc(var(--horror) * 0.24);
   background: repeating-linear-gradient(
     0deg,
@@ -164,9 +168,16 @@ button {
   inset: 0;
   pointer-events: none;
   z-index: 41;
+  contain: strict;
   opacity: calc(var(--pulse) * var(--horror) * 0.42);
   background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(95, 4, 8, 0.56) 100%);
   transition: opacity 0.14s ease-out;
+}
+
+.overlay-idle {
+  visibility: hidden;
+  animation-play-state: paused !important;
+  will-change: auto !important;
 }
 
 .whisper-toast {
@@ -2386,6 +2397,8 @@ body.ghost-daylight #decay-canvas {
    ========================================================================== */
 
 @media (max-width: 920px) {
+  .site-header { backdrop-filter: blur(8px); }
+  .audio-pill { backdrop-filter: blur(6px); }
   .main-nav { display: none; }
   .window-body { grid-template-columns: 1fr; }
   .window-sidebar { display: none; }
